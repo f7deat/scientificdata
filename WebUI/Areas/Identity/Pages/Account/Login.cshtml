@@ -1,0 +1,75 @@
+﻿@page
+@model LoginModel
+
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>AdminLTE 3 | Log in</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Font Awesome -->
+    <link href="~/lib/fontawesome-free/css/all.css" rel="stylesheet" />
+    <!-- icheck bootstrap -->
+    <link href="~/lib/icheck-bootstrap/icheck-bootstrap.css" rel="stylesheet" />
+    <!-- Theme style -->
+    <link href="~/css/adminlte.min.css" rel="stylesheet" />
+</head>
+<body class="hold-transition login-page">
+    <div class="login-box">
+        <div class="login-logo">
+            <a href="#"><b>Admin</b>LTE</a>
+        </div>
+        <!-- /.login-logo -->
+        <div class="card">
+            <div class="card-body login-card-body">
+                <p class="login-box-msg">Đăng nhập vào phần quản trị</p>
+                <form id="account" method="post" class="kt-form">
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                    <div class="input-group mb-3">
+                        <input asp-for="Input.Email" class="form-control" placeholder="Email" />
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-envelope"></span>
+                            </div>
+                        </div>
+                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input asp-for="Input.Password" class="form-control" placeholder="Mật khẩu" />
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-lock"></span>
+                            </div>
+                        </div>
+                        <span asp-validation-for="Input.Password" class="text-danger"></span>
+                    </div>
+                    <button class="btn btn-primary btn-block" type="submit">Đăng nhập</button>
+                </form>
+                <!-- /.social-auth-links -->
+
+                <p class="mb-1">
+                    <a id="forgot-password" asp-page="./ForgotPassword" class="kt-login__link">Forgot your password?</a>
+                </p>
+                <p class="mb-0">
+                    <a href="register.html" class="text-center">Register a new membership</a>
+                </p>
+            </div>
+            <!-- /.login-card-body -->
+        </div>
+    </div>
+    <!-- /.login-box -->
+    <!-- jQuery -->
+    <script src="~/lib/jquery/jquery.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="~/lib/bootstrap/js/bootstrap.js"></script>
+    <!-- AdminLTE App -->
+    <script src="~/js/adminlte.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,109 @@
+﻿@model ApplicationCore.Entities.Topic
+
+@{
+    ViewData["Title"] = "Tài liệu";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+<link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
+<link href="~/lib/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" />
+<link href="~/lib/summernote/summernote-bs4.css" rel="stylesheet" />
+<link href="~/lib/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet" />
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">@ViewData["Title"]</h3>
+    </div>
+    <!-- /.card-header -->
+    <div class="card-body">
+        <form asp-action="Create" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <label class="control-label">Tên tài liệu <font color="red">*</font></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Mô tả</label>
+                        <textarea asp-for="Description" class="form-control"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Nội dung</label>
+                        <textarea asp-for="Content" class="form-control"></textarea>
+                        <span asp-validation-for="Content" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label">Ngày xuất bản</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                            </div>
+                            <input name="PublishDate" id="PublishDate" class="form-control" data-inputmask-alias="datetime" data-inputmask-inputformat="dd/mm/yyyy" data-mask>
+                        </div>
+                        <span asp-validation-for="PublishDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Danh mục</label>
+                        <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories"></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Tác giả</label>
+                        <select class="form-control" name="Authorids" id="AuthorIds" asp-items="ViewBag.Authors" multiple="multiple">
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="exampleInputFile">Tệp tin đính kèm</label>
+                        <div class="input-group">
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="Avatar" name="Avatar" multiple="multiple">
+                                <label class="custom-file-label" for="exampleInputFile">Chọn file</label>
+                            </div>
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="">Xem trước</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <input type="submit" value="Tạo mới" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/lib/inputmask/min/jquery.inputmask.bundle.min.js"></script>
+    <script src="~/lib/bs-custom-file-input/bs-custom-file-input.min.js"></script>
+    <script src="~/lib/summernote/summernote-bs4.js"></script>
+    <script src="~/lib/select2/js/select2.full.min.js"></script>
+    <script>
+        $(function () {
+            // Summernote
+            $('#Content').summernote()
+
+            //Initialize Select2 Elements
+            $('#AuthorIds').select2({
+                theme: 'bootstrap4'
+            })
+
+            //Datemask dd/mm/yyyy
+            $('#PublishDate').inputmask('dd/mm/yyyy', { 'placeholder': 'dd/mm/yyyy' })
+        });
+
+        $(document).ready(function () {
+            bsCustomFileInput.init();
+        });
+    </script>
+}

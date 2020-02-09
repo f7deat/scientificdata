@@ -1,0 +1,76 @@
+﻿@model ApplicationCore.Entities.Topic
+
+@{
+    ViewData["Title"] = Model.Name;
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">@ViewData["Title"]</h3>
+    </div>
+    <!-- /.card-header -->
+    <div class="card-body">
+
+        <div class="row">
+            <div class="col-md-8">
+
+                <div class="py-3 border-bottom">
+                    @Html.Raw(Model.Content)
+                </div>
+
+                <div class="clearfix py-3 border-bottom">
+                    <div class="text-muted float-right">
+                        <i class="fa fa-calendar"></i> Ngày cập nhập: @Model.ModifiedDate
+                    </div>
+                    <div class="text-muted">
+                        <i class="fa fa-calendar"></i> Ngày tạo: @Model.CreatedDate
+                    </div>
+                </div>
+
+                <h4 class="mt-4"><i class="fa fa-user"></i> Tác giả</h4>
+
+                @foreach (var item in ViewBag.Authors)
+                {
+                    <div class="clearfix p-2 border-bottom">
+                        <div class="user-block">
+                            <img class="img-circle img-bordered-sm" src="~/img/profile/@item.Author.Avatar" alt="User Image">
+                            <span class="username">
+                                <a href="/admin/authors/details/@item.AuthorId">@item.Author.Name</a>
+                            </span>
+                            <span class="description">@item.Author.DateOfBirth</span>
+                        </div>
+                    </div>
+                }
+
+            </div>
+            <div class="col-md-4">
+                <label>Mô tả</label>
+                <div class="form-group">
+                    @Model.Description
+                </div>
+                <label><i class="fa fa-file-archive"></i> Tệp tin đính kèm</label>
+                @if (!string.IsNullOrEmpty(Model.Attachments))
+                {
+                    <ul>
+                        @foreach (var item in Model?.Attachments.Split(","))
+                        {
+                            <li><a href="~/files/@item">@item</a></li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <div class="text-muted">Không có tệp tin</div>
+                }
+            </div>
+        </div>
+
+        <div class="clearfix">
+            <div class="float-lg-right">
+                <a asp-action="Edit" asp-route-id="@Model.TopicId" asp-route-url="@Url.RouteUrl(Url.ActionContext.RouteData.Values)" class="btn btn-primary"><i class="fa fa-pen"></i> Chỉnh sửa</a>
+                <a asp-action="Index" class="btn btn-danger"><i class="fa fa-trash"></i> Xóa</a>
+            </div>
+        </div>
+    </div>
+</div>

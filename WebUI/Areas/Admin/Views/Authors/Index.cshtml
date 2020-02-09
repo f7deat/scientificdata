@@ -1,0 +1,118 @@
+﻿@model ApplicationCore.Helper.PaginatedList<ApplicationCore.Entities.Author>
+
+@{
+    ViewData["Title"] = "Tác giả";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">@ViewData["Title"]</h3>
+    </div>
+    <!-- /.card-header -->
+    <div class="card-body">
+        <div class="clearfix mb-3">
+            <form class="form-inline float-right" action="/admin/authors/index" method="get">
+                <input class="form-control mr-2" name="searchTerm" placeholder="Nhập từ khóa..." />
+                <button class="btn btn-primary" type="submit"><i class="fa fa-search"></i> Tìm kiếm</button>
+            </form>
+            <a asp-action="Create" class="btn btn-primary"><i class="fa fa-plus"></i> Tạo mới</a>
+        </div>
+        <table class="table table-bordered mb-3">
+            <thead>
+                <tr>
+                    <th>
+                        Họ và tên
+                    </th>
+                    <th>
+                        Ngày sinh
+                    </th>
+                    <th>
+                        Giới tính
+                    </th>
+                    <th>
+                        Email
+                    </th>
+                    <th>
+                        Số điện thoại
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <b>@Html.DisplayFor(modelItem => item.Name)</b>
+                        </td>
+                        <td>
+                            @item.DateOfBirth?.ToString("dd/MM/yyyy")
+                        </td>
+                        <td>
+                            @(item?.Gender == true ? "Nam" : "Nữ")
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Email)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.PhoneNumber)
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.AuthorId" class="btn btn-primary btn-sm"><i class="fa fa-pen"></i> Chỉnh sửa</a>
+                            <a asp-action="Details" asp-route-id="@item.AuthorId" class="btn btn-info btn-sm"><i class="fa fa-user"></i> Hồ sơ</a>
+                            <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-whatever="@item.AuthorId"><i class="fa fa-trash"></i> Xóa</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @{
+            var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+            var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+        }
+
+
+        <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)" class="btn btn-secondary btn-sm @prevDisabled shadow">
+            <i class="fa fa-angle-double-left"></i> Trang trước
+        </a>
+        <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)" class="btn btn-secondary btn-sm float-right @nextDisabled shadow">
+            Trang sau <i class="fa fa-angle-double-right"></i>
+        </a>
+
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="Delete" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="Id" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $('#deleteModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget)
+            var recipient = button.data('whatever')
+            var modal = $(this)
+            modal.find('.modal-body input').val(recipient)
+        })
+    </script>
+}

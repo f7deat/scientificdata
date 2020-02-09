@@ -1,0 +1,112 @@
+﻿@model ApplicationCore.Entities.Author
+
+@{
+    ViewData["Title"] = "Tác giả";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/lib/summernote/summernote-bs4.css" rel="stylesheet" />
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">@ViewData["Title"]</h3>
+    </div>
+    <!-- /.card-header -->
+    <div class="card-body">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="AuthorId" />
+            <input type="hidden" asp-for="Avatar" />
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label asp-for="Name" class="control-label"></label>
+                        <input asp-for="Name" class="form-control" required />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="DateOfBirth" class="control-label"></label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                            </div>
+                            <input name="DateOfBirth" id="DateOfBirth" class="form-control" data-inputmask-alias="datetime" data-inputmask-inputformat="dd/mm/yyyy" data-mask>
+                        </div>
+                        <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Gender" class="control-label"></label>
+                        <select asp-for="Gender" class="form-control">
+                            <option value="">-- Chọn giới tính --</option>
+                            <option value="true">Nam</option>
+                            <option value="false">Nữ</option>
+                        </select>
+                        <span asp-validation-for="Gender" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Email" class="control-label"></label>
+                        <input asp-for="Email" class="form-control" type="email"/>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PhoneNumber" class="control-label"></label>
+                        <input asp-for="PhoneNumber" class="form-control" data-inputmask='"mask": "9999999999"' data-mask />
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <label asp-for="Bio" class="control-label"></label>
+                        <textarea asp-for="Bio" class="form-control"></textarea>
+                        <span asp-validation-for="Bio" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Location" class="control-label"></label>
+                        <input asp-for="Location" class="form-control" />
+                        <span asp-validation-for="Location" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Social" class="control-label"></label>
+                        <input asp-for="Social" class="form-control" />
+                        <span asp-validation-for="Social" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputFile">Ảnh</label>
+                        <div class="input-group">
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="Avatar" name="AvatarFile" accept=".jpg, .png, .jpeg">
+                                <label class="custom-file-label" for="exampleInputFile">Chọn file</label>
+                            </div>
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="">Xem trước</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Save" class="btn btn-primary" />
+                        <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/lib/inputmask/min/jquery.inputmask.bundle.min.js"></script>
+    <script src="~/lib/bs-custom-file-input/bs-custom-file-input.min.js"></script>
+    <script src="~/lib/summernote/summernote-bs4.js"></script>
+    <script>
+
+        //Datemask dd/mm/yyyy
+        $('#DateOfBirth').inputmask('dd/mm/yyyy', { 'placeholder': 'dd/mm/yyyy' })
+        //Money Euro
+        $('[data-mask]').inputmask()
+        $(document).ready(function () {
+            bsCustomFileInput.init();
+        });
+        // Summernote
+        $('#Bio').summernote()
+
+    </script>
+}

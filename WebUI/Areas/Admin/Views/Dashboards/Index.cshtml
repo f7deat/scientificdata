@@ -1,0 +1,108 @@
+﻿
+@{
+    ViewData["Title"] = "Thống kê";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Title</h3>
+
+            <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-tool" data-card-widget="remove" data-toggle="tooltip" title="Remove">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            Start creating your amazing application!
+        </div>
+        <!-- /.card-body -->
+        <div class="card-footer">
+            Footer
+        </div>
+        <!-- /.card-footer-->
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Tác giả mới</h3>
+
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn btn-tool" data-card-widget="remove">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body p-0">
+                    <ul class="users-list clearfix">
+                        @foreach (var item in ViewBag.NewAuthors)
+                        {
+                            <li>
+                                <img src="~/img/profile/@item?.Avatar" alt="User Image" width="128" height="128">
+                                <a class="users-list-name" href="/admin/authors/details/@item.AuthorId">@item?.Name</a>
+                            </li>
+                        }
+                    </ul>
+                    <!-- /.users-list -->
+                </div>
+                <!-- /.card-body -->
+                <div class="card-footer text-center">
+                    <a href="/admin/authors">Xem tất cả</a>
+                </div>
+                <!-- /.card-footer -->
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Tài liệu mới</h3>
+
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn btn-tool" data-card-widget="remove">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body p-0">
+                    <ul class="products-list product-list-in-card pl-2 pr-2">
+                        @foreach (var item in ViewBag.NewTopics)
+                        {
+                            <li class="item">
+                                @*<div class="product-img">
+                                    <img src="dist/img/default-150x150.png" alt="Product Image" class="img-size-50">
+                                </div>*@
+                                <div class="product-info">
+                                    <a href="/admin/topics/details/@item.TopicId" class="product-title">
+                                        @item.Name
+                                    </a>
+                                    <span class="product-description">
+                                       @item.ModifiedDate
+                                    </span>
+                                </div>
+                            </li>
+                            <!-- /.item -->
+                        }
+                    </ul>
+                </div>
+                <!-- /.card-body -->
+                <div class="card-footer text-center">
+                    <a href="/admin/topics" class="uppercase">Xem thêm</a>
+                </div>
+                <!-- /.card-footer -->
+            </div>
+        </div>
+    </div>
