@@ -27,6 +27,7 @@ namespace ApplicationCore.Entities
         [Display(Name = "Địa chỉ")]
         public string Location { get; set; }
         [StringLength(1000)]
+        [Display(Name = "Website/Blog")]
         public string Social { get; set; }
         [StringLength(1000)]
         [Display(Name = "Ảnh đại diện")]

@@ -12,6 +12,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Infrastructure.Data;
+using ApplicationCore.Services;
+using ApplicationCore.Interfaces;
+using ApplicationCore.Entities;
+using Infrastructure.Repositories;
 
 namespace WebUI
 {
@@ -32,6 +36,8 @@ namespace WebUI
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddScoped<ILogService, LogService>();
+            services.AddScoped<IAsyncRepository<Log>, LogRepository>();
             services.AddControllersWithViews();
             services.AddRazorPages();
         }

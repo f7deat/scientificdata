@@ -24,10 +24,11 @@ namespace ApplicationCore.Entities
         public TopicStatus Status { get; set; }
         [StringLength(1000)]
         public string Attachments { get; set; }
+        [StringLength(2000)]
+        public string Tags { get; set; }
 
         public virtual Category Category { get; set; }
 
-        public virtual ICollection<TagTopic> TagTopics { get; set; }
         public virtual ICollection<AuthorTopic> AuthorTopics { get; set; }
     }
 

@@ -9,6 +9,7 @@
 <link href="~/lib/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" />
 <link href="~/lib/summernote/summernote-bs4.css" rel="stylesheet" />
 <link href="~/lib/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet" />
+<link href="~/lib/toastr/toastr.css" rel="stylesheet" />
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">@ViewData["Title"]</h3>
@@ -18,6 +19,8 @@
         <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="TopicId" />
+            <input type="hidden" asp-for="CreatedDate" />
+            <input type="hidden" asp-for="Attachments" />
             <div class="row">
                 <div class="col-md-8">
                     <div class="form-group">
@@ -43,7 +46,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
                             </div>
-                            <input name="PublishDate" id="PublishDate" value="@Model.PublishDate" class="form-control" data-inputmask-alias="datetime" data-inputmask-inputformat="dd/mm/yyyy" data-mask>
+                            <input name="PublishDate" id="PublishDate" value="@Model.PublishDate?.ToString("dd/MM/yyyy")" class="form-control" type="date">
                         </div>
                         <span asp-validation-for="PublishDate" class="text-danger"></span>
                     </div>
@@ -53,20 +56,23 @@
                         </select>
                     </div>
 
-                    <div class="form-group clearfix">
-                        <div class="icheck-primary d-inline">
-                            <input type="radio" name="Status" id="Status" value="0" checked>
-                            <label for="radioPrimary1">
-                                Xuất bản
-                            </label>
-                        </div>
-                        <div class="icheck-primary d-inline">
-                            <input type="radio" name="Status" id="Status" value="1">
-                            <label for="radioPrimary2">
-                                Nháp
-                            </label>
+                    <div class="form-group">
+                        <label>Tệp tin đính kèm</label><br />
+                        @foreach (var item in Model.Attachments?.Split(","))
+                        {
+                            <div class="py-2" id="@item?.Substring(0,7)">
+                                <i class="fa fa-file"></i> @item
+                                <a href="#" class="text-danger" onclick="RemoveFile('@item')"><i class="fa fa-times"></i></a>
+                            </div>
+                        }
+                        <div class="input-group">
+                            <div class="custom-file">
+                                <input type="file" class="custom-file-input" id="attachmentFiles" name="attachmentFiles" multiple="multiple">
+                                <label class="custom-file-label">Chọn file</label>
+                            </div>
                         </div>
                     </div>
+
                     <div class="form-group">
                         <input type="submit" value="Cập nhật" class="btn btn-primary" />
                         @if (string.IsNullOrEmpty(ViewBag.UrlBack))
@@ -86,10 +92,12 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/bootbox.js"></script>
     <script src="~/lib/inputmask/min/jquery.inputmask.bundle.min.js"></script>
     <script src="~/lib/bs-custom-file-input/bs-custom-file-input.min.js"></script>
     <script src="~/lib/summernote/summernote-bs4.js"></script>
     <script src="~/lib/select2/js/select2.full.min.js"></script>
+    <script src="~/lib/toastr/toastr.min.js"></script>
     <script>
         $(function () {
             // Summernote
@@ -99,12 +107,37 @@
             $('#AuthorIds').select2({
                 theme: 'bootstrap4'
             })
-            //Datemask dd/mm/yyyy
-            $('#PublishDate').inputmask('dd/mm/yyyy', { 'placeholder': 'dd/mm/yyyy' })
         });
 
         $(document).ready(function () {
             bsCustomFileInput.init();
         });
+
+        function RemoveFile(fileName) {
+            let strFileName = '#' + fileName.substring(0, 7);
+            bootbox.confirm("Xác nhận xóa", function (result) {
+                if (result) {
+                    $.ajax({
+                        url: '/admin/topics/RemoveFile',
+                        type: 'POST',
+                        dataType: 'html',
+                        data: {
+                            file: fileName,
+                            id: @Model.TopicId
+                        }
+                    }).done(function (response) {
+                        if (response) {
+                            $(strFileName).remove();
+                            $('#Attachments').val($('#Attachments').val().replace(fileName, ''));
+                            toastr["success"]("Xóa file thành công!");
+                        }
+                        else {
+                            toastr["error"]("Xóa file thất bại!");
+                        }
+                    });
+                }
+            });
+        };
+
     </script>
 }

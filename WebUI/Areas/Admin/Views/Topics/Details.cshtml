@@ -7,7 +7,7 @@
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">@ViewData["Title"]</h3>
+        <h3 class="card-title"><b>@ViewData["Title"]</b></h3>
     </div>
     <!-- /.card-header -->
     <div class="card-body">
@@ -38,7 +38,7 @@
                             <span class="username">
                                 <a href="/admin/authors/details/@item.AuthorId">@item.Author.Name</a>
                             </span>
-                            <span class="description">@item.Author.DateOfBirth</span>
+                            <span class="description">@item.Author.DateOfBirth?.ToString("dd/MM/yyy")</span>
                         </div>
                     </div>
                 }
@@ -53,7 +53,7 @@
                 @if (!string.IsNullOrEmpty(Model.Attachments))
                 {
                     <ul>
-                        @foreach (var item in Model?.Attachments.Split(","))
+                        @foreach (var item in Model?.Attachments.Split(",", StringSplitOptions.RemoveEmptyEntries))
                         {
                             <li><a href="~/files/@item">@item</a></li>
                         }

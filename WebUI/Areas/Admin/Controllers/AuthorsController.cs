@@ -68,19 +68,19 @@ namespace WebUI.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Author author, IFormFile Avatar)
+        public async Task<IActionResult> Create(Author author, IFormFile AvatarFile)
         {
             if (ModelState.IsValid)
             {
-                if (Avatar != null)
+                if (AvatarFile != null)
                 {
-                    var extension = Path.GetExtension(Avatar.FileName).ToLower();
+                    var extension = Path.GetExtension(AvatarFile.FileName).ToLower();
                     var fileName = Path.GetRandomFileName() + extension;
                     var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "img/profile", fileName);
 
                     using (var stream = System.IO.File.Create(filePath))
                     {
-                        await Avatar.CopyToAsync(stream);
+                        await AvatarFile.CopyToAsync(stream);
                     }
                     author.Avatar = fileName;
                 }

@@ -40,11 +40,11 @@ namespace WebUI.Areas.Admin.Controllers
                 ViewBag.TopicName = topicName;
                 return View(await PaginatedList<Topic>.CreateAsync(_context.Topics.Include(x => x.AuthorTopics)
                         .Include(x => x.Category)
-                        .Where(x=>x.Name.Contains(topicName))
+                        .Where(x => x.Name.Contains(topicName))
                         .OrderByDescending(x => x.ModifiedDate), pageIndex ?? 1, 10));
             }
 
-            return View(await PaginatedList<Topic>.CreateAsync(_context.Topics.Include(x => x.AuthorTopics).Include(x=>x.Category).OrderByDescending(x=>x.ModifiedDate), pageIndex ?? 1 , 10));
+            return View(await PaginatedList<Topic>.CreateAsync(_context.Topics.Include(x => x.AuthorTopics).Include(x => x.Category).OrderByDescending(x => x.ModifiedDate), pageIndex ?? 1, 10));
         }
 
         public async Task<IActionResult> Details(int? id)
@@ -75,7 +75,7 @@ namespace WebUI.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(TopicViewModel topicViewModel, List<IFormFile> attachments)
+        public async Task<IActionResult> Create(TopicViewModel topicViewModel, List<IFormFile> attachmentFiles)
         {
             if (ModelState.IsValid)
             {
@@ -95,20 +95,27 @@ namespace WebUI.Areas.Admin.Controllers
                             Description = topicViewModel.Description
                         };
 
-                        if (attachments?.Count() > 0)
+                        if (attachmentFiles?.Count() > 0)
                         {
-                            foreach (var item in attachments)
+                            foreach (var item in attachmentFiles)
                             {
                                 var extension = Path.GetExtension(item.FileName).ToLower();
                                 // Tên file. Example: xhoaihw-2020-02-08.pdf
-                                var fileName = string.Format($"{Path.GetRandomFileName()}-{DateTime.Now.Year}-{DateTime.Now.Month}-{DateTime.Now.Date}{extension}");
+                                var fileName = string.Format($"{Path.GetRandomFileName()}-{DateTime.Now.Year}-{DateTime.Now.Month}-{DateTime.Now.Day}{extension}");
                                 var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "files", fileName);
 
                                 using (var stream = System.IO.File.Create(filePath))
                                 {
                                     await item.CopyToAsync(stream);
                                 }
-                                topic.Attachments = string.Format($"{topic.Attachments},{item.FileName}");
+                                if (string.IsNullOrEmpty(topic.Attachments))
+                                {
+                                    topic.Attachments = fileName;
+                                }
+                                else
+                                {
+                                    topic.Attachments = string.Format($"{topic.Attachments},{fileName}");
+                                }
                             }
                         }
 
@@ -144,7 +151,6 @@ namespace WebUI.Areas.Admin.Controllers
             return View(topicViewModel);
         }
 
-        // GET: Admin/Topics/Edit/5
         public async Task<IActionResult> Edit(int? id, string url)
         {
             if (id == null)
@@ -152,7 +158,7 @@ namespace WebUI.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var topic = await _context.Topics.Include(x=>x.AuthorTopics).FirstOrDefaultAsync(x=>x.TopicId == id);
+            var topic = await _context.Topics.Include(x => x.AuthorTopics).FirstOrDefaultAsync(x => x.TopicId == id);
             if (topic == null)
             {
                 return NotFound();
@@ -172,7 +178,7 @@ namespace WebUI.Areas.Admin.Controllers
                 UserId = topic.UserId
             };
 
-            ViewData["Authors"] = new MultiSelectList(_context.Authors, "AuthorId", "Name", topic.AuthorTopics.Select(x=>x.AuthorId));
+            ViewData["Authors"] = new MultiSelectList(_context.Authors, "AuthorId", "Name", topic.AuthorTopics.Select(x => x.AuthorId));
             ViewData["Categories"] = new SelectList(_context.Categories, "CategoryId", "Name", topic.CategoryId);
             if (!string.IsNullOrEmpty(url))
             {
@@ -183,7 +189,7 @@ namespace WebUI.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, TopicViewModel topicViewModel, List<IFormFile> attachments)
+        public async Task<IActionResult> Edit(int id, TopicViewModel topicViewModel, List<IFormFile> attachmentFiles)
         {
             if (id != topicViewModel.TopicId)
             {
@@ -194,45 +200,84 @@ namespace WebUI.Areas.Admin.Controllers
             {
                 try
                 {
-                    using (var trans = _context.Database.BeginTransaction())
+                    if (!string.IsNullOrEmpty(topicViewModel.Attachments))
                     {
-                        try
+                        if (topicViewModel.Attachments.LastIndexOf(",") > 0)
                         {
-                            var topic = new Topic
-                            {
-                                Content = topicViewModel.Content,
-                                CreatedDate = topicViewModel.CreatedDate,
-                                Description = topicViewModel.Description,
-                                Name = topicViewModel.Name,
-                                Status = topicViewModel.Status,
-                                Url = topicViewModel.Url,
-                                UserId = topicViewModel.UserId,
-                                ModifiedDate = DateTime.Now,
-                                PublishDate = topicViewModel.PublishDate
-                            };
-                            _context.Update(topic);
+                            topicViewModel.Attachments = topicViewModel.Attachments[0..^1];
+                        }
+                        if (topicViewModel.Attachments.IndexOf(",") == 0)
+                        {
+                            topicViewModel.Attachments = topicViewModel.Attachments.Substring(1);
+                        }
+                        if (topicViewModel.Attachments.Equals(","))
+                        {
+                            topicViewModel.Attachments = string.Empty;
+                        }
+                    }
+                    using var trans = _context.Database.BeginTransaction();
+                    try
+                    {
+                        var topic = new Topic
+                        {
+                            Content = topicViewModel.Content,
+                            CreatedDate = topicViewModel.CreatedDate,
+                            Description = topicViewModel.Description,
+                            Name = topicViewModel.Name,
+                            Status = topicViewModel.Status,
+                            Url = topicViewModel.Url,
+                            UserId = topicViewModel.UserId,
+                            ModifiedDate = DateTime.Now,
+                            PublishDate = topicViewModel.PublishDate,
+                            Attachments = topicViewModel.Attachments
+                        };
 
-                            if (topicViewModel.AuthorIds != null)
+                        if (attachmentFiles?.Count > 0)
+                        {
+                            foreach (var item in attachmentFiles)
                             {
-                                _context.AuthorTopics.RemoveRange(_context.AuthorTopics.Where(x => x.TopicId == id));
-                                foreach (var item in topicViewModel.AuthorIds)
+                                var extension = Path.GetExtension(item.FileName).ToLower();
+                                // Tên file. Example: xhoaihw-2020-02-08.pdf
+                                var fileName = string.Format($"{Path.GetRandomFileName()}-{DateTime.Now.Year}-{DateTime.Now.Month}-{DateTime.Now.Day}{extension}");
+                                var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "files", fileName);
+
+                                using (var stream = System.IO.File.Create(filePath))
                                 {
-                                    _context.AuthorTopics.Add(new AuthorTopic
-                                    {
-                                        AuthorId = item,
-                                        TopicId = id
-                                    });
+                                    await item.CopyToAsync(stream);
+                                }
+                                if (string.IsNullOrEmpty(topic.Attachments))
+                                {
+                                    topic.Attachments = fileName;
+                                }
+                                else
+                                {
+                                    topic.Attachments = string.Format($"{topic.Attachments},{fileName}");
                                 }
                             }
-
-                            await _context.SaveChangesAsync();
-
-                            await trans.CommitAsync();
                         }
-                        catch
+
+                        if (topicViewModel.AuthorIds != null)
                         {
-                            await trans.RollbackAsync();
+                            _context.AuthorTopics.RemoveRange(_context.AuthorTopics.Where(x => x.TopicId == id));
+                            foreach (var item in topicViewModel.AuthorIds)
+                            {
+                                _context.AuthorTopics.Add(new AuthorTopic
+                                {
+                                    AuthorId = item,
+                                    TopicId = id
+                                });
+                            }
                         }
+
+                        _context.Update(topic);
+
+                        await _context.SaveChangesAsync();
+
+                        await trans.CommitAsync();
+                    }
+                    catch
+                    {
+                        await trans.RollbackAsync();
                     }
                 }
                 catch (DbUpdateConcurrencyException)
@@ -271,19 +316,66 @@ namespace WebUI.Areas.Admin.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id, bool isDelete = false)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var topic = await _context.Topics.FindAsync(id);
-            if (isDelete)
+
+            if (!string.IsNullOrEmpty(topic.Attachments))
             {
-                topic.Status = TopicStatus.Trash;
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var attatchs = topic.Attachments.Split(",");
+                foreach (var item in attatchs)
+                {
+                    var path = Path.Combine(_webHostEnvironment.WebRootPath, "files", item);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                    }
+                }
             }
 
             _context.Topics.Remove(topic);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public JsonResult RemoveFile(string file, int id)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(file))
+                {
+                    var topic = _context.Topics.Find(id);
+                    if (!string.IsNullOrEmpty(topic.Attachments) && topic != null)
+                    {
+                        topic.Attachments = topic.Attachments.Replace(file, string.Empty);
+                        if (topic.Attachments.LastIndexOf(",") > 0)
+                        {
+                            topic.Attachments = topic.Attachments[0..^1];
+                        }
+                        if (topic.Attachments.IndexOf(",") == 0)
+                        {
+                            topic.Attachments = topic.Attachments.Substring(1);
+                        }
+                    }
+
+                    var path = Path.Combine(_webHostEnvironment.WebRootPath, "files", file);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                    }
+
+                    _context.Update(topic);
+                    _context.SaveChanges();
+
+                    return Json(true);
+                }
+                return Json(false);
+            }
+            catch (Exception)
+            {
+                return Json(false);
+            }
         }
 
         private bool TopicExists(int id)
