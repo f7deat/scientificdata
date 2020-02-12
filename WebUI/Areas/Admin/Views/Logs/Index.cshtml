@@ -1,0 +1,109 @@
+﻿@model ApplicationCore.Helper.PaginatedList<ApplicationCore.Entities.Log>
+
+@{
+    ViewData["Title"] = "Log";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Log</h3>
+    </div>
+    <!-- /.card-header -->
+    <div class="card-body">
+
+        <div class="py-3">
+            <a href="/admin/logs" class="btn btn-success"><i class="fas fa-spinner fa-spin"></i> Làm mới</a>
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal"><i class="fa fa-trash"></i> Xóa tất cả log</button>
+        </div>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>
+                        Email
+                    </th>
+                    <th>
+                        Thời gian
+                    </th>
+                    <th>
+                        phân loại
+                    </th>
+                    <th>
+                        Nội dung
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UserId)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.LogTime)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.LogType)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.LogContent)
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @{
+            var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+            var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+        }
+
+
+        <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)" class="btn btn-secondary btn-sm @prevDisabled shadow">
+            <i class="fa fa-angle-double-left"></i> Trang trước
+        </a>
+        <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)" class="btn btn-secondary btn-sm float-right @nextDisabled shadow">
+            Trang sau <i class="fa fa-angle-double-right"></i>
+        </a>
+
+        <div class="py-4">
+            <i class="fa fa-question-circle"></i><b>Chú thích</b><br />
+            <button class="btn btn-danger" type="button"></button> Lỗi hệ thống, cần gửi lại cho Dev!<br />
+            <button class="btn btn-info" type="button"></button> Lịch sử hoạt động của thành viên.
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="Delete" method="post">
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $('#deleteModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget)
+            var recipient = button.data('whatever')
+            var modal = $(this)
+            modal.find('.modal-body input').val(recipient)
+        })
+    </script>
+}
