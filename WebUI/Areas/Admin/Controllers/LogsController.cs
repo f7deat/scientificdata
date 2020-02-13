@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using ApplicationCore.Entities;
 using Infrastructure.Data;
 using ApplicationCore.Helper;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebUI.Areas.Admin.Controllers
 {
@@ -21,14 +22,15 @@ namespace WebUI.Areas.Admin.Controllers
             _context = context;
         }
 
-        // GET: Admin/Logs
+        [Authorize]
         public async Task<IActionResult> Index(string searchTearm, string email, LogType? logType, int? pageIndex)
         {
-            return View(await PaginatedList<Log>.CreateAsync(_context.Logs, pageIndex ?? 1, 10));
+            return View(await PaginatedList<Log>.CreateAsync(_context.Logs.OrderByDescending(x=>x.LogTime), pageIndex ?? 1, 10));
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "manager")]
         public async Task<IActionResult> DeleteConfirmed()
         {
             var log = await _context.Logs.ToListAsync();

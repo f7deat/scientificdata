@@ -26,5 +26,7 @@ namespace Infrastructure.Data
         public DbSet<Department> Departments { get; set; }
         public DbSet<Topic> Topics { get; set; }
         public DbSet<Log> Logs { get; set; }
+        public DbSet<Warehouse> Warehouses { get; set; }
+
     }
 }

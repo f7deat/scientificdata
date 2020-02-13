@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using ApplicationCore.Helper;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebUI.Areas.Admin.Controllers
 {
@@ -26,7 +27,7 @@ namespace WebUI.Areas.Admin.Controllers
             _webHostEnvironment = webHostEnvironment;
         }
 
-        // GET: Admin/Authors
+        [Authorize]
         public async Task<IActionResult> Index(string searchTerm, int? pageIndex)
         {
             if (!string.IsNullOrEmpty(searchTerm))
@@ -39,7 +40,7 @@ namespace WebUI.Areas.Admin.Controllers
             return View(await PaginatedList<Author>.CreateAsync(applicationDbContext, pageIndex ?? 1, 10));
         }
 
-        // GET: Admin/Authors/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -59,7 +60,7 @@ namespace WebUI.Areas.Admin.Controllers
             return View(author);
         }
 
-        // GET: Admin/Authors/Create
+        [Authorize(Roles = "manager")]
         public IActionResult Create()
         {
             ViewData["DepartmentId"] = new SelectList(_context.Departments, "DepartmentId", "DepartmentId");
@@ -68,6 +69,7 @@ namespace WebUI.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "manager")]
         public async Task<IActionResult> Create(Author author, IFormFile AvatarFile)
         {
             if (ModelState.IsValid)
@@ -99,7 +101,7 @@ namespace WebUI.Areas.Admin.Controllers
             return View(author);
         }
 
-        // GET: Admin/Authors/Edit/5
+        [Authorize(Roles = "manager")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -118,6 +120,7 @@ namespace WebUI.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "manager")]
         public async Task<IActionResult> Edit(int id, Author author, IFormFile AvatarFile)
         {
             if (id != author.AuthorId)
@@ -166,26 +169,9 @@ namespace WebUI.Areas.Admin.Controllers
             return View(author);
         }
 
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var author = await _context.Authors
-                .Include(a => a.Department)
-                .FirstOrDefaultAsync(m => m.AuthorId == id);
-            if (author == null)
-            {
-                return NotFound();
-            }
-
-            return View(author);
-        }
-
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "manager")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var author = await _context.Authors.FindAsync(id);

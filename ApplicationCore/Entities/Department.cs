@@ -14,6 +14,6 @@ namespace ApplicationCore.Entities
         [StringLength(500)]
         public string Description { get; set; }
 
-        public virtual ICollection<Author> Authors { get; set; }
+        public virtual ICollection<Topic> Topics { get; set; }
     }
 }

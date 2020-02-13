@@ -5,6 +5,6 @@ namespace ApplicationCore.Interfaces
 {
     public interface ILogService
     {
-        Task Write(string userId, LogType logType, string logContent);
+        Task Write(LogType logType, string logContent);
     }
 }

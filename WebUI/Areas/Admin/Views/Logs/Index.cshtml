@@ -12,12 +12,12 @@
     <!-- /.card-header -->
     <div class="card-body">
 
-        <div class="py-3">
+        <div class="mb-3">
             <a href="/admin/logs" class="btn btn-success"><i class="fas fa-spinner fa-spin"></i> Làm mới</a>
             <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal"><i class="fa fa-trash"></i> Xóa tất cả log</button>
         </div>
 
-        <table class="table table-bordered">
+        <table class="table table-bordered mb-3">
             <thead>
                 <tr>
                     <th>
@@ -45,7 +45,26 @@
                             @Html.DisplayFor(modelItem => item.LogTime)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.LogType)
+                            @switch (item.LogType)
+                            {
+                                case ApplicationCore.Entities.LogType.Info:
+                                    <span class="btn btn-info"></span>
+                                    break;
+                                case ApplicationCore.Entities.LogType.Warning:
+                                    <span class="btn btn-warning"></span>
+                                    break;
+                                case ApplicationCore.Entities.LogType.Success:
+                                    <span class="btn btn-success"></span>
+                                    break;
+                                case ApplicationCore.Entities.LogType.Error:
+                                    <span class="btn btn-danger"></span>
+                                    break;
+                                case ApplicationCore.Entities.LogType.Exception:
+                                    <span class="btn btn-dark"></span>
+                                    break;
+                                default:
+                                    break;
+                            }
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.LogContent)
@@ -69,9 +88,11 @@
         </a>
 
         <div class="py-4">
-            <i class="fa fa-question-circle"></i><b>Chú thích</b><br />
-            <button class="btn btn-danger" type="button"></button> Lỗi hệ thống, cần gửi lại cho Dev!<br />
-            <button class="btn btn-info" type="button"></button> Lịch sử hoạt động của thành viên.
+            <i class="fa fa-question-circle"></i><b> Chú thích</b><br />
+            <span class="btn btn-danger"></span> Lỗi người dùng, hãy báo lại dev nếu xảy ra nhiều lần!<br />
+            <span class="btn btn-dark"></span> Lỗi hệ thống, cần gửi lại cho dev!<br />
+            <span class="btn btn-warning"></span> Lỗi không ảnh hưởng tới hệ thống và người dùng<br />
+            <span class="btn btn-info"></span> Lịch sử hoạt động của thành viên.
         </div>
     </div>
 </div>

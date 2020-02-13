@@ -24,6 +24,11 @@
             <div class="row">
                 <div class="col-md-8">
                     <div class="form-group">
+                        <label asp-for="Number" class="control-label"></label>
+                        <input asp-for="Number" class="form-control" required />
+                        <span asp-validation-for="Number" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
                         <label asp-for="Name" class="control-label"></label>
                         <input asp-for="Name" class="form-control" />
                         <span asp-validation-for="Name" class="text-danger"></span>
@@ -46,24 +51,36 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
                             </div>
-                            <input name="PublishDate" id="PublishDate" value="@Model.PublishDate?.ToString("dd/MM/yyyy")" class="form-control" type="date">
+                            <input name="PublishDate" id="PublishDate" value="@Model.PublishDate?.ToString("yyyy-MM-dd")" class="form-control" type="date">
                         </div>
                         <span asp-validation-for="PublishDate" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Danh mục</label>
+                        <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories"></select>
                     </div>
                     <div class="form-group">
                         <label class="control-label">Tác giả</label>
                         <select class="form-control" name="Authorids" id="AuthorIds" asp-items="ViewBag.Authors" multiple="multiple">
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label asp-for="Tags" class="control-label"></label>
+                        <input asp-for="Tags" class="form-control" placeholder="Mỗi từ khóa cách nhau bởi dấu ," />
+                        <span asp-validation-for="Tags" class="text-danger"></span>
+                    </div>
 
                     <div class="form-group">
                         <label>Tệp tin đính kèm</label><br />
-                        @foreach (var item in Model.Attachments?.Split(","))
+                        @if (Model.Attachments != null && Model.Attachments?.Length > 7)
                         {
-                            <div class="py-2" id="@item?.Substring(0,7)">
-                                <i class="fa fa-file"></i> @item
-                                <a href="#" class="text-danger" onclick="RemoveFile('@item')"><i class="fa fa-times"></i></a>
-                            </div>
+                            foreach (var item in Model.Attachments?.Split(","))
+                            {
+                                <div class="py-2" id="@item?.Substring(0,7)">
+                                    <i class="fa fa-file"></i> @item
+                                    <a href="#" class="text-danger" onclick="RemoveFile('@item')"><i class="fa fa-times"></i></a>
+                                </div>
+                            }
                         }
                         <div class="input-group">
                             <div class="custom-file">
@@ -123,7 +140,7 @@
                         dataType: 'html',
                         data: {
                             file: fileName,
-                            id: @Model.TopicId
+                            id: @Model.TopicId,
                         }
                     }).done(function (response) {
                         if (response) {

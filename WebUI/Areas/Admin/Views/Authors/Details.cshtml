@@ -21,7 +21,7 @@
 
                         <h3 class="profile-username text-center">@Model.Name</h3>
 
-                        <p class="text-muted text-center">@Model.DateOfBirth</p>
+                        <p class="text-muted text-center">@Model.DateOfBirth?.ToString("dd/MM/yyyy")</p>
 
                         <ul class="list-group list-group-unbordered mb-3">
                             <li class="list-group-item">
@@ -47,7 +47,15 @@
                         <hr />
                         <strong><i class="fas fa-map-marker-alt mr-1"></i> Ngày sinh</strong>
 
-                        <p class="text-muted">@Model.DateOfBirth</p>
+                        <p class="text-muted">@Model.DateOfBirth?.ToString("dd/MM/yyyy")</p>
+                        <hr />
+                        <strong><i class="fas fa-map-marker-alt mr-1"></i> Email</strong>
+
+                        <p class="text-muted">@Model.Email</p>
+                        <hr />
+                        <strong><i class="fas fa-map-marker-alt mr-1"></i> Số điện thoại</strong>
+
+                        <p class="text-muted">@Model.PhoneNumber</p>
                         <hr />
                     </div>
                     <!-- /.card-body -->
@@ -86,7 +94,7 @@
                                             <div class="timeline-item mb-3">
                                                 <span class="time"><i class="far fa-clock"></i> Ngày cập nhật: @item.Topic.ModifiedDate</span>
 
-                                                <h3 class="timeline-header"><a href="/admin/topics/details/@item.TopicId">@item.Topic.Name</a></h3>
+                                                <h3 class="timeline-header"><a href="/admin/topics/details/@item.TopicId?returnUrl=/admin/authors/details/@item.TopicId">@item.Topic.Name</a></h3>
 
                                                 <div class="timeline-body">
                                                     @item.Topic.Description

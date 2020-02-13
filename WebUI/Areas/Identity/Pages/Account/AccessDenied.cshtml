@@ -1,10 +1,20 @@
 ﻿@page
 @model AccessDeniedModel
 @{
-    ViewData["Title"] = "Access denied";
+    ViewData["Title"] = "Truy cập bị từ chối";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
-<header>
-    <h1 class="text-danger">@ViewData["Title"]</h1>
-    <p class="text-danger">You do not have access to this resource.</p>
-</header>
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">@ViewData["Title"]</h3>
+    </div>
+    <!-- /.card-header -->
+    <div class="card-body">
+        <div class="alert alert-danger">
+            <b>
+                Bạn không có quyền truy cập vào mục này!
+            </b>
+        </div>
+    </div>
+</div>

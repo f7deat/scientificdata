@@ -26,8 +26,26 @@ namespace ApplicationCore.Entities
         public string Attachments { get; set; }
         [StringLength(2000)]
         public string Tags { get; set; }
+        [StringLength(200)]
+        public string Source { get; set; }
+        [Display(Name = "Người ký")]
+        public string Signer { get; set; }
+        public TopicType? TopicType { get; set; }
+        public DateTime? EffectiveDate { get; set; }
+        [StringLength(200)]
+        [Display(Name = "Số hiệu")]
+        public string Number { get; set; }
+        public int? DepartmentId { get; set; }
+        [StringLength(200)]
+        public string AttachmentType { get; set; }
+        [StringLength(200)]
+        public string Page { get; set; }
+        [StringLength(200)]
+        public string ISSN { get; set; }
 
+        public virtual Warehouse Warehouse { get; set; }
         public virtual Category Category { get; set; }
+        public virtual Department Department { get; set; }
 
         public virtual ICollection<AuthorTopic> AuthorTopics { get; set; }
     }
@@ -37,5 +55,14 @@ namespace ApplicationCore.Entities
         Publish,
         Draft,
         Trash
+    }
+    public enum TopicType
+    {
+        Decree, // nghị định
+        Scheme, // đề án
+        Topic, // đề tài
+        Resolution, // nghị quyết
+        Circulars, // thông tư
+        Posts // bài viết
     }
 }

@@ -4,28 +4,34 @@
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Title</h3>
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Lọc theo danh mục</h3>
 
-            <div class="card-tools">
-                <button type="button" class="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip" title="Collapse">
-                    <i class="fas fa-minus"></i>
-                </button>
-                <button type="button" class="btn btn-tool" data-card-widget="remove" data-toggle="tooltip" title="Remove">
-                    <i class="fas fa-times"></i>
-                </button>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" data-card-widget="remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                
+                <!-- /.users-list -->
+            </div>
+            <!-- /.card-body -->
+            <div class="card-footer text-center">
+                <a href="/admin/authors">Xem tất cả</a>
+            </div>
+            <!-- /.card-footer -->
         </div>
-        <div class="card-body">
-            Start creating your amazing application!
-        </div>
-        <!-- /.card-body -->
-        <div class="card-footer">
-            Footer
-        </div>
-        <!-- /.card-footer-->
     </div>
+</div>
 
     <div class="row">
         <div class="col-md-4">
@@ -86,7 +92,7 @@
                                     <img src="dist/img/default-150x150.png" alt="Product Image" class="img-size-50">
                                 </div>*@
                                 <div class="product-info">
-                                    <a href="/admin/topics/details/@item.TopicId" class="product-title">
+                                    <a href="/admin/topics/details/@item.TopicId?returnUrl=/admin/dashboards" class="product-title">
                                         @item.Name
                                     </a>
                                     <span class="product-description">
@@ -103,6 +109,45 @@
                     <a href="/admin/topics" class="uppercase">Xem thêm</a>
                 </div>
                 <!-- /.card-footer -->
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Thống kê nhanh</h3>
+
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn btn-tool" data-card-widget="remove">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <!-- /.card-body -->
+                <div class="card-footer bg-white p-0">
+                    <ul class="nav nav-pills flex-column">
+                        <li class="nav-item">
+                            <a href="/admin/topics" class="nav-link">
+                                Số tài liệu
+                                <span class="float-right text-success">
+                                    <i class="fas fa-arrow-up text-sm"></i>
+                                    @ViewBag.TopicCount
+                                </span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/admin/authors" class="nav-link">
+                                Số tác giả
+                                <span class="float-right text-success">
+                                    <i class="fas fa-arrow-up text-sm"></i> @ViewBag.AuthorCount
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- /.footer -->
             </div>
         </div>
     </div>

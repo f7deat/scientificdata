@@ -12,6 +12,8 @@ using WebUI.Areas.Admin.Models;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using ApplicationCore.Helper;
+using ApplicationCore.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebUI.Areas.Admin.Controllers
 {
@@ -20,20 +22,29 @@ namespace WebUI.Areas.Admin.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly ILogService _logService;
 
-        public TopicsController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
+        public TopicsController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment, ILogService logService)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _logService = logService;
         }
 
-        // GET: Admin/Topics
+        [Authorize]
         public async Task<IActionResult> Index(int? pageIndex,
                                                 string topicName,
+                                                string publishDate,
                                                 TopicStatus status = TopicStatus.Publish)
         {
             ViewBag.Authors = await _context.AuthorTopics.Include(x => x.Author).ToListAsync();
             ViewBag.Categories = await _context.Categories.ToListAsync();
+
+            var topics = _context.Topics;
+            if (!string.IsNullOrEmpty(publishDate))
+            {
+                //topics = topics.Where(x => publishDate.Contains(x.PublishDate?.Year.ToString()));
+            }
 
             if (!string.IsNullOrEmpty(topicName))
             {
@@ -47,7 +58,8 @@ namespace WebUI.Areas.Admin.Controllers
             return View(await PaginatedList<Topic>.CreateAsync(_context.Topics.Include(x => x.AuthorTopics).Include(x => x.Category).OrderByDescending(x => x.ModifiedDate), pageIndex ?? 1, 10));
         }
 
-        public async Task<IActionResult> Details(int? id)
+        [Authorize]
+        public async Task<IActionResult> Details(int? id, string returnUrl)
         {
             if (id == null)
             {
@@ -60,12 +72,13 @@ namespace WebUI.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-
+            ViewBag.ReturnUrl = returnUrl;
             ViewBag.Authors = await _context.AuthorTopics.Include(x => x.Author).Where(x => x.TopicId == id).ToListAsync();
 
             return View(topic);
         }
 
+        [Authorize(Roles = "manager")]
         public IActionResult Create()
         {
             ViewData["Authors"] = new SelectList(_context.Authors, "AuthorId", "Name");
@@ -75,6 +88,7 @@ namespace WebUI.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "manager")]
         public async Task<IActionResult> Create(TopicViewModel topicViewModel, List<IFormFile> attachmentFiles)
         {
             if (ModelState.IsValid)
@@ -92,7 +106,10 @@ namespace WebUI.Areas.Admin.Controllers
                             Url = topicViewModel.Url,
                             Content = topicViewModel.Content,
                             CreatedDate = DateTime.Now,
-                            Description = topicViewModel.Description
+                            Description = topicViewModel.Description,
+                            CategoryId = topicViewModel.CategoryId,
+                            Number = topicViewModel.Number,
+                            Tags = topicViewModel.Tags
                         };
 
                         if (attachmentFiles?.Count() > 0)
@@ -151,6 +168,7 @@ namespace WebUI.Areas.Admin.Controllers
             return View(topicViewModel);
         }
 
+        [Authorize(Roles = "manager")]
         public async Task<IActionResult> Edit(int? id, string url)
         {
             if (id == null)
@@ -175,7 +193,10 @@ namespace WebUI.Areas.Admin.Controllers
                 TopicId = topic.TopicId,
                 Url = topic.Url,
                 Attachments = topic.Attachments,
-                UserId = topic.UserId
+                UserId = topic.UserId,
+                CategoryId = topic.CategoryId,
+                Number = topic.Number,
+                Tags = topic.Tags
             };
 
             ViewData["Authors"] = new MultiSelectList(_context.Authors, "AuthorId", "Name", topic.AuthorTopics.Select(x => x.AuthorId));
@@ -189,6 +210,7 @@ namespace WebUI.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "manager")]
         public async Task<IActionResult> Edit(int id, TopicViewModel topicViewModel, List<IFormFile> attachmentFiles)
         {
             if (id != topicViewModel.TopicId)
@@ -220,6 +242,7 @@ namespace WebUI.Areas.Admin.Controllers
                     {
                         var topic = new Topic
                         {
+                            TopicId = topicViewModel.TopicId,
                             Content = topicViewModel.Content,
                             CreatedDate = topicViewModel.CreatedDate,
                             Description = topicViewModel.Description,
@@ -229,7 +252,8 @@ namespace WebUI.Areas.Admin.Controllers
                             UserId = topicViewModel.UserId,
                             ModifiedDate = DateTime.Now,
                             PublishDate = topicViewModel.PublishDate,
-                            Attachments = topicViewModel.Attachments
+                            Attachments = topicViewModel.Attachments,
+                            CategoryId = topicViewModel.CategoryId
                         };
 
                         if (attachmentFiles?.Count > 0)
@@ -296,26 +320,9 @@ namespace WebUI.Areas.Admin.Controllers
             return View(topicViewModel);
         }
 
-        // GET: Admin/Topics/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var topic = await _context.Topics
-                .FirstOrDefaultAsync(m => m.TopicId == id);
-            if (topic == null)
-            {
-                return NotFound();
-            }
-
-            return View(topic);
-        }
-
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "manager")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var topic = await _context.Topics.FindAsync(id);
@@ -339,6 +346,7 @@ namespace WebUI.Areas.Admin.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "manager")]
         public JsonResult RemoveFile(string file, int id)
         {
             try
@@ -372,8 +380,9 @@ namespace WebUI.Areas.Admin.Controllers
                 }
                 return Json(false);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logService.Write(LogType.Exception, ex.Message);
                 return Json(false);
             }
         }

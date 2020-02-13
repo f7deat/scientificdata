@@ -26,6 +26,21 @@
                 <li class="nav-item">
                     <a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
                 </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        <a class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">@User.Identity.Name</a>
+                    }
+                    else
+                    {
+                        <a href="#" class="d-block">Dinh Tan</a>
+                    }
+                </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                        <button type="submit" class="nav-link btn btn-link">Đăng xuất</button>
+                    </form>
+                </li>
             </ul>
 
             <!-- SEARCH FORM -->
@@ -53,32 +68,16 @@
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
-            <a href="../../index3.html" class="brand-link">
+            <a href="/admin/dashboards" class="brand-link">
                 <img src="~/media/AdminLTELogo.png"
                      alt="AdminLTE Logo"
                      class="brand-image img-circle elevation-3"
                      style="opacity: .8">
-                <span class="brand-text font-weight-light">Document</span>
+                <span class="brand-text font-weight-light">Quản trị</span>
             </a>
 
             <!-- Sidebar -->
             <div class="sidebar">
-                <!-- Sidebar user (optional) -->
-                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                    <div class="image">
-                        <img src="~/media/boxed-bg.jpg" class="img-circle elevation-2" alt="User Image">
-                    </div>
-                    <div class="info">
-                        @if (SignInManager.IsSignedIn(User))
-                        {
-                            <a class="d-block" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">@User.Identity.Name!</a>
-                        }
-                        else
-                        {
-                            <a href="#" class="d-block">Alexander Pierce</a>
-                        }
-                    </div>
-                </div>
 
                 <!-- Sidebar Menu -->
                 <nav class="mt-2">
@@ -112,6 +111,14 @@
                                 <i class="nav-icon fas fa-book"></i>
                                 <p>
                                     Tài liệu
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/admin/departments" class="nav-link">
+                                <i class="nav-icon far fa-object-group"></i>
+                                <p>
+                                    Đơn vị
                                 </p>
                             </a>
                         </li>

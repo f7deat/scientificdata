@@ -69,7 +69,15 @@
         <div class="clearfix">
             <div class="float-lg-right">
                 <a asp-action="Edit" asp-route-id="@Model.TopicId" asp-route-url="@Url.RouteUrl(Url.ActionContext.RouteData.Values)" class="btn btn-primary"><i class="fa fa-pen"></i> Chỉnh sửa</a>
-                <a asp-action="Index" class="btn btn-danger"><i class="fa fa-trash"></i> Xóa</a>
+
+                @if (string.IsNullOrEmpty(ViewBag.ReturnUrl))
+                {
+                    <a asp-action="Index" class="btn btn-secondary"><i class="fa fa-redo"></i> Quay lại</a>
+                }
+                else
+                {
+                    <a href="@ViewBag.ReturnUrl" class="btn btn-secondary"><i class="fa fa-redo"></i> Quay lại</a>
+                }
             </div>
         </div>
     </div>

@@ -30,7 +30,10 @@
                 {
                     <tr>
                         <td>
-                            <div class="font-weight-bold"><i class="fa fa-file"></i> @item.Name</div>
+                            <div class="font-weight-bold">
+                                <i class="fa fa-file"></i>
+                                <a href="/admin/topics/details/@item.TopicId">@item.Name</a>
+                            </div>
                             <i class="text-muted text-sm"><i class="fa fa-calendar"></i>  @item.CreatedDate</i>
                         </td>
                         <td>
@@ -45,8 +48,7 @@
                             <b>@item.PublishDate?.Year</b>
                         </td>
                         <td>
-                            <a asp-action="Edit" asp-route-id="@item.TopicId" class="btn btn-primary btn-sm"><i class="fa fa-pen"></i> Chỉnh sửa</a>
-                            <a asp-action="Details" asp-route-id="@item.TopicId" class="btn btn-info btn-sm"><i class="fa fa-folder"></i> Chi tiết</a>
+                            <a href="/admin/topics/edit/@item.TopicId" class="btn btn-primary btn-sm"><i class="fa fa-pen"></i> Sửa</a>
                             <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-whatever="@item.TopicId"><i class="fa fa-trash"></i> Xóa</button>
                         </td>
                     </tr>
