@@ -1,10 +1,4 @@
 ﻿@model ApplicationCore.Helper.PaginatedList<ApplicationCore.Entities.Topic>
-
-@{
-    ViewData["Title"] = "Tài liệu";
-    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
-}
-
 <link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
 <link href="~/lib/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" />
 <div class="card">
@@ -152,8 +146,6 @@
         </div>
     </div>
 </div>
-
-@*<partial name="_Topics" />*@
 
 @section scripts {
     <script src="~/lib/select2/js/select2.full.min.js"></script>

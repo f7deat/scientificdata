@@ -33,19 +33,12 @@ namespace WebUI.Areas.Admin.Controllers
 
         [Authorize]
         public async Task<IActionResult> Index(int? pageIndex,
-                                                string topicName,
-                                                string publishDate,
-                                                TopicStatus status = TopicStatus.Publish)
+                                                string topicName)
         {
-            ViewBag.Authors = await _context.AuthorTopics.Include(x => x.Author).ToListAsync();
+            ViewBag.Authors = new SelectList(_context.Authors, "AuthorId", "Name");
             ViewBag.Categories = await _context.Categories.ToListAsync();
 
             var topics = _context.Topics;
-            if (!string.IsNullOrEmpty(publishDate))
-            {
-                //topics = topics.Where(x => publishDate.Contains(x.PublishDate?.Year.ToString()));
-            }
-
             if (!string.IsNullOrEmpty(topicName))
             {
                 ViewBag.TopicName = topicName;
@@ -83,6 +76,7 @@ namespace WebUI.Areas.Admin.Controllers
         {
             ViewData["Authors"] = new SelectList(_context.Authors, "AuthorId", "Name");
             ViewData["Categories"] = new SelectList(_context.Categories, "CategoryId", "Name");
+            ViewData["Departments"] = new SelectList(_context.Departments, "DepartmentId", "Name");
             return View();
         }
 
@@ -109,7 +103,9 @@ namespace WebUI.Areas.Admin.Controllers
                             Description = topicViewModel.Description,
                             CategoryId = topicViewModel.CategoryId,
                             Number = topicViewModel.Number,
-                            Tags = topicViewModel.Tags
+                            Tags = topicViewModel.Tags,
+                            DepartmentId = topicViewModel.DepartmentId,
+                            TopicType = topicViewModel.TopicType
                         };
 
                         if (attachmentFiles?.Count() > 0)
@@ -163,6 +159,7 @@ namespace WebUI.Areas.Admin.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["Departments"] = new SelectList(_context.Departments, "DepartmentId", "Name");
             ViewData["Authors"] = new SelectList(_context.Authors, "AuthorId", "Name");
             ViewData["Categories"] = new SelectList(_context.Categories, "CategoryId", "Name");
             return View(topicViewModel);
@@ -196,9 +193,12 @@ namespace WebUI.Areas.Admin.Controllers
                 UserId = topic.UserId,
                 CategoryId = topic.CategoryId,
                 Number = topic.Number,
-                Tags = topic.Tags
+                Tags = topic.Tags,
+                DepartmentId = topic.DepartmentId,
+                TopicType = topic.TopicType
             };
 
+            ViewData["Departments"] = new SelectList(_context.Departments, "DepartmentId", "Name");
             ViewData["Authors"] = new MultiSelectList(_context.Authors, "AuthorId", "Name", topic.AuthorTopics.Select(x => x.AuthorId));
             ViewData["Categories"] = new SelectList(_context.Categories, "CategoryId", "Name", topic.CategoryId);
             if (!string.IsNullOrEmpty(url))
@@ -253,7 +253,9 @@ namespace WebUI.Areas.Admin.Controllers
                             ModifiedDate = DateTime.Now,
                             PublishDate = topicViewModel.PublishDate,
                             Attachments = topicViewModel.Attachments,
-                            CategoryId = topicViewModel.CategoryId
+                            CategoryId = topicViewModel.CategoryId,
+                            DepartmentId = topicViewModel.DepartmentId,
+                            TopicType = topicViewModel.TopicType
                         };
 
                         if (attachmentFiles?.Count > 0)

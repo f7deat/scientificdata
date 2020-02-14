@@ -1,0 +1,91 @@
+﻿
+@{
+    ViewData["Title"] = "Tra cứu";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fab fa-react"></i> Lọc theo danh mục</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <ul class="list-group">
+                    <li class="list-group-item active">
+                        Đơn vị
+                    </li>
+                    @foreach (var item in ViewBag.Departments)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="/admin/departments/details/@item.DepartmentId">@item.Name</a>
+                            <span class="badge badge-primary badge-pill">@item.Topics.Count</span>
+                        </li>
+                    }
+                    <li class="list-group-item">
+                        <a href="/admin/departments">Xem thêm...</a>
+                    </li>
+                </ul>
+                <ul class="list-group">
+                    <li class="list-group-item active">Loại văn bản</li>
+                    @foreach (var value in ApplicationCore.Helper.EnumHelper<ApplicationCore.Entities.TopicType>.GetValues(ApplicationCore.Entities.TopicType.Posts))
+                    {
+                        var description = ApplicationCore.Helper.EnumHelper<ApplicationCore.Entities.TopicType>.GetDisplayValue(value);
+                        <li class="list-group-item"><a href="#">@Html.DisplayFor(e => description)</a></li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-9">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fab fa-react"></i> Tìm kiếm</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                <form>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <label>Nhập từ khóa</label>
+                            <input type="text" class="form-control mb-3" />
+                        </div>
+                        <div class="col-md-4">
+                            <label>Đơn vị</label>
+                            <select class="form-control mb-3"></select>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Loại văn bản</label>
+                            <select class="form-control mb-3"></select>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Lĩnh vực</label>
+                            <select class="form-control mb-3"></select>
+                        </div>
+                        <div class="col-md-3">
+                            <label>Số hiệu</label>
+                            <input type="text" class="form-control mb-3" />
+                        </div>
+                        <div class="col-md-1">
+                            <label>Năm</label>
+                            <select class="form-control mb-3"></select>
+                        </div>
+
+                    </div>
+                    <button type="button" class="btn btn-primary"><i class="fa fa-search"></i> Tìm kiếm</button>
+                </form>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fab fa-react"></i> Kết quả tìm kiếm</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+                Phần tìm kiếm này em chưa làm kịp ạ. Em định sẽ design như này!
+            </div>
+        </div>
+    </div>
+</div>
+

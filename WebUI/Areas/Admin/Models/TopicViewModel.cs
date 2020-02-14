@@ -31,5 +31,7 @@ namespace WebUI.Areas.Admin.Models
         public string Attachments { get; set; }
         [Display(Name = "Từ khóa")]
         public string Tags { get; set; }
+        public int? DepartmentId { get; set; }
+        public TopicType? TopicType { get; set; }
     }
 }

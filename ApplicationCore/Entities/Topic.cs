@@ -58,11 +58,17 @@ namespace ApplicationCore.Entities
     }
     public enum TopicType
     {
+        [Display(Name = "Nghị định")]
         Decree, // nghị định
+        [Display(Name = "Đề án")]
         Scheme, // đề án
+        [Display(Name = "Đề tài")]
         Topic, // đề tài
+        [Display(Name = "Nghị quyết")]
         Resolution, // nghị quyết
+        [Display(Name = "Thông tư")]
         Circulars, // thông tư
+        [Display(Name = "Bài viết")]
         Posts // bài viết
     }
 }

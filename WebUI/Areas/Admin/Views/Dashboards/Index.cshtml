@@ -4,37 +4,68 @@
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
-<div class="row">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Lọc theo danh mục</h3>
+    <div class="row">
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box">
+                <span class="info-box-icon bg-info elevation-1"><i class="fas fa-book"></i></span>
 
-                <div class="card-tools">
-                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                        <i class="fas fa-minus"></i>
-                    </button>
-                    <button type="button" class="btn btn-tool" data-card-widget="remove">
-                        <i class="fas fa-times"></i>
-                    </button>
+                <div class="info-box-content">
+                    <span class="info-box-text">Số tài liệu</span>
+                    <span class="info-box-number">
+                        @ViewBag.TopicCount
+                    </span>
                 </div>
+                <!-- /.info-box-content -->
             </div>
-            <!-- /.card-header -->
-            <div class="card-body">
-                
-                <!-- /.users-list -->
-            </div>
-            <!-- /.card-body -->
-            <div class="card-footer text-center">
-                <a href="/admin/authors">Xem tất cả</a>
-            </div>
-            <!-- /.card-footer -->
+            <!-- /.info-box -->
         </div>
+        <!-- /.col -->
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box mb-3">
+                <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-users"></i></span>
+
+                <div class="info-box-content">
+                    <span class="info-box-text">Số tác giả</span>
+                    <span class="info-box-number">@ViewBag.AuthorCount</span>
+                </div>
+                <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+        </div>
+        <!-- /.col -->
+        <!-- fix for small devices only -->
+        <div class="clearfix hidden-md-up"></div>
+
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box mb-3">
+                <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
+
+                <div class="info-box-content">
+                    <span class="info-box-text">Số lĩnh vực</span>
+                    <span class="info-box-number">@ViewBag.CategoryCount</span>
+                </div>
+                <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+        </div>
+        <!-- /.col -->
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box mb-3">
+                <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-users"></i></span>
+
+                <div class="info-box-content">
+                    <span class="info-box-text">Số thành viên</span>
+                    <span class="info-box-number">@ViewBag.UserCount</span>
+                </div>
+                <!-- /.info-box-content -->
+            </div>
+            <!-- /.info-box -->
+        </div>
+        <!-- /.col -->
     </div>
-</div>
 
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Tác giả mới</h3>
@@ -68,7 +99,7 @@
                 <!-- /.card-footer -->
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Tài liệu mới</h3>
@@ -109,45 +140,6 @@
                     <a href="/admin/topics" class="uppercase">Xem thêm</a>
                 </div>
                 <!-- /.card-footer -->
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Thống kê nhanh</h3>
-
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                            <i class="fas fa-minus"></i>
-                        </button>
-                        <button type="button" class="btn btn-tool" data-card-widget="remove">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <!-- /.card-body -->
-                <div class="card-footer bg-white p-0">
-                    <ul class="nav nav-pills flex-column">
-                        <li class="nav-item">
-                            <a href="/admin/topics" class="nav-link">
-                                Số tài liệu
-                                <span class="float-right text-success">
-                                    <i class="fas fa-arrow-up text-sm"></i>
-                                    @ViewBag.TopicCount
-                                </span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="/admin/authors" class="nav-link">
-                                Số tác giả
-                                <span class="float-right text-success">
-                                    <i class="fas fa-arrow-up text-sm"></i> @ViewBag.AuthorCount
-                                </span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <!-- /.footer -->
             </div>
         </div>
     </div>

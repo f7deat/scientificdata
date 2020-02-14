@@ -34,7 +34,7 @@ namespace WebUI.Areas.Admin.Controllers
         }
 
         [Authorize]
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id, int? pageIndex, string topicName)
         {
             if (id == null)
             {
@@ -50,8 +50,22 @@ namespace WebUI.Areas.Admin.Controllers
             {
                 return NotFound();
             }
+            ViewBag.Authors = new SelectList(_context.Authors, "AuthorId", "Name");
+            ViewBag.Categories = await _context.Categories.ToListAsync();
 
-            return View(department);
+            var topics = _context.Topics;
+
+            if (!string.IsNullOrEmpty(topicName))
+            {
+                ViewBag.TopicName = topicName;
+                return View(await PaginatedList<Topic>.CreateAsync(_context.Topics.Include(x => x.AuthorTopics)
+                        .Include(x => x.Category)
+                        .Where(x => x.Name.Contains(topicName))
+                        .OrderByDescending(x => x.ModifiedDate), pageIndex ?? 1, 10));
+            }
+
+            return View(await PaginatedList<Topic>.CreateAsync(_context.Topics.Include(x => x.AuthorTopics).Include(x => x.Category).OrderByDescending(x => x.ModifiedDate), pageIndex ?? 1, 10));
+            //return View(department);
         }
 
         // GET: Admin/Departments/Create
