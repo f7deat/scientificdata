@@ -63,7 +63,6 @@ namespace WebUI.Areas.Admin.Controllers
         [Authorize(Roles = "manager")]
         public IActionResult Create()
         {
-            ViewData["DepartmentId"] = new SelectList(_context.Departments, "DepartmentId", "DepartmentId");
             return View();
         }
 
@@ -97,7 +96,6 @@ namespace WebUI.Areas.Admin.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DepartmentId"] = new SelectList(_context.Departments, "DepartmentId", "DepartmentId", author.DepartmentId);
             return View(author);
         }
 
@@ -114,7 +112,6 @@ namespace WebUI.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            ViewData["DepartmentId"] = new SelectList(_context.Departments, "DepartmentId", "DepartmentId", author.DepartmentId);
             return View(author);
         }
 

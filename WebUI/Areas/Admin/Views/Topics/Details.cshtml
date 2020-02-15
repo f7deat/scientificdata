@@ -17,6 +17,13 @@
 
                 <div class="py-3 border-bottom">
                     @Html.Raw(Model.Content)
+                    <div class="py-3">
+                        <i class="fa fa-tags"></i> Từ khóa: 
+                        @foreach (var item in Model.Tags.Split(",", StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            <span class="badge badge-dark">@item</span>
+                        }
+                    </div>
                 </div>
 
                 <div class="clearfix py-3 border-bottom">
@@ -48,6 +55,32 @@
                 <label>Mô tả</label>
                 <div class="form-group">
                     @Model.Description
+                </div>
+                <label>Ngày ban hành</label>
+                <div class="form-group">
+                    @Model.PublishDate?.ToString("dd/MM/yyyy")
+                </div>
+                <label>Ngày hiệu lực</label>
+                <div class="form-group">
+                    @Model.EffectiveDate?.ToString("dd/MM/yyyy")
+                </div>
+                <label>Người ký</label>
+                <div class="form-group">
+                    @Model.Signer
+                </div>
+                <label>Số hiệu / ISNS</label>
+                <div class="form-group">
+                    @Model.Number / @Model.ISSN
+                </div>
+                <label>Lĩnh vực</label>
+                <div class="form-group">
+                    @Model.Category.Name
+                </div>
+                <label>Loại văn bản</label>
+                <div class="form-group">
+                    @{var description = ApplicationCore.Helper.EnumHelper<ApplicationCore.Entities.TopicType>.GetDisplayValue(Model.TopicType.Value);
+                        @Html.DisplayFor(e => description)
+                    }
                 </div>
                 <label><i class="fa fa-file-archive"></i> Tệp tin đính kèm</label>
                 @if (!string.IsNullOrEmpty(Model.Attachments))

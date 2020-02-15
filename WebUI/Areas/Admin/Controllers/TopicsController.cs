@@ -105,7 +105,12 @@ namespace WebUI.Areas.Admin.Controllers
                             Number = topicViewModel.Number,
                             Tags = topicViewModel.Tags,
                             DepartmentId = topicViewModel.DepartmentId,
-                            TopicType = topicViewModel.TopicType
+                            TopicType = topicViewModel.TopicType,
+                            EffectiveDate = topicViewModel.EffectiveDate,
+                            Signer = topicViewModel.Signer,
+                            Source = topicViewModel.Source,
+                            ISSN = topicViewModel.ISSN,
+                            Page = topicViewModel.Page
                         };
 
                         if (attachmentFiles?.Count() > 0)
@@ -195,7 +200,12 @@ namespace WebUI.Areas.Admin.Controllers
                 Number = topic.Number,
                 Tags = topic.Tags,
                 DepartmentId = topic.DepartmentId,
-                TopicType = topic.TopicType
+                TopicType = topic.TopicType,
+                EffectiveDate = topic.EffectiveDate,
+                Signer = topic.Signer,
+                Source = topic.Source,
+                ISSN = topic.ISSN,
+                Page = topic.Page
             };
 
             ViewData["Departments"] = new SelectList(_context.Departments, "DepartmentId", "Name");
@@ -255,7 +265,12 @@ namespace WebUI.Areas.Admin.Controllers
                             Attachments = topicViewModel.Attachments,
                             CategoryId = topicViewModel.CategoryId,
                             DepartmentId = topicViewModel.DepartmentId,
-                            TopicType = topicViewModel.TopicType
+                            TopicType = topicViewModel.TopicType,
+                            EffectiveDate = topicViewModel.EffectiveDate,
+                            Signer = topicViewModel.Signer,
+                            Source = topicViewModel.Source,
+                            ISSN = topicViewModel.ISSN,
+                            Page = topicViewModel.Page
                         };
 
                         if (attachmentFiles?.Count > 0)

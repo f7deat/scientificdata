@@ -1,4 +1,4 @@
-﻿
+﻿@model ApplicationCore.Helper.PaginatedList<ApplicationCore.Entities.Topic>
 @{
     ViewData["Title"] = "Tra cứu";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
@@ -45,45 +45,113 @@
             </div>
             <!-- /.card-header -->
             <div class="card-body">
-                <form>
+                <form action="/admin/searches/index" method="get">
                     <div class="row">
                         <div class="col-md-8">
                             <label>Nhập từ khóa</label>
-                            <input type="text" class="form-control mb-3" />
+                            <input type="text" class="form-control mb-3" name="searchTerm" />
                         </div>
                         <div class="col-md-4">
                             <label>Đơn vị</label>
-                            <select class="form-control mb-3"></select>
+                            <select class="form-control mb-3" asp-items="ViewBag.DepartmentsSelect" name="Department">
+                                <option value="">-- Tùy chọn --</option>
+                            </select>
                         </div>
                         <div class="col-md-4">
                             <label>Loại văn bản</label>
-                            <select class="form-control mb-3"></select>
+                            <select name="TopicType" class="form-control mb-3">
+                                <option value="">-- Tùy chọn --</option>
+                                @foreach (var value in ApplicationCore.Helper.EnumHelper<ApplicationCore.Entities.TopicType>.GetValues(ApplicationCore.Entities.TopicType.Posts))
+                                {
+                                    var description = ApplicationCore.Helper.EnumHelper<ApplicationCore.Entities.TopicType>.GetDisplayValue(value);
+                                    <option value="@value">@Html.DisplayFor(e => description)</option>
+                                }
+                            </select>
                         </div>
                         <div class="col-md-4">
                             <label>Lĩnh vực</label>
-                            <select class="form-control mb-3"></select>
+                            <select class="form-control mb-3" asp-items="ViewBag.CategoriesSelect" name="Category">
+                                <option value="">-- Tùy chọn --</option>
+                            </select>
                         </div>
                         <div class="col-md-3">
                             <label>Số hiệu</label>
-                            <input type="text" class="form-control mb-3" />
+                            <input type="text" class="form-control mb-3" name="Number" />
                         </div>
                         <div class="col-md-1">
                             <label>Năm</label>
-                            <select class="form-control mb-3"></select>
+                            <select class="form-control mb-3" asp-items="ViewBag.Years" name="Year">
+                                <option value="">--</option>
+                            </select>
                         </div>
 
                     </div>
-                    <button type="button" class="btn btn-primary"><i class="fa fa-search"></i> Tìm kiếm</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> Tìm kiếm</button>
+                    <a href="/admin/searches" class="btn btn-secondary"><i class="fa fa-redo"></i> Hủy</a>
                 </form>
             </div>
         </div>
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title"><i class="fab fa-react"></i> Kết quả tìm kiếm</h3>
+                <div class="card-tools">
+                    Tổng số: <b>@Model.Count</b>
+                </div>
             </div>
             <!-- /.card-header -->
             <div class="card-body">
-                Phần tìm kiếm này em chưa làm kịp ạ. Em định sẽ design như này!
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Số hiệu</th>
+                            <th>Tiêu đề</th>
+                            <th>Ngày phát hành</th>
+                            <th>File</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Number</td>
+                                <td>
+                                    <a href="/admin/topics/details/@item.TopicId"><b>@item.Name</b></a>
+                                </td>
+                                <td>@item.PublishDate?.ToString("dd/MM/yyyy")</td>
+                                @*<td>@item.EffectiveDate?.ToString("dd/MM/yyyy")</td>*@
+                                <td>
+                                    <div class="btn-group">
+                                        <button class="btn btn-danger btn-sm" type="button">
+                                            <i class="fa fa-cloud-download-alt"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-danger dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span class="sr-only">Toggle Dropdown</span>
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            @foreach (var file in item.Attachments.Split(","))
+                                            {
+                                                <a href="~/files/@file" class="dropdown-item"><i class="fa fa-dot-circle"></i> @file</a>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                @{
+                    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+                }
+
+
+                <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)" class="btn btn-secondary btn-sm @prevDisabled shadow">
+                    <i class="fa fa-angle-double-left"></i> Trang trước
+                </a>
+                <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)" class="btn btn-secondary btn-sm float-right @nextDisabled shadow">
+                    Trang sau <i class="fa fa-angle-double-right"></i>
+                </a>
             </div>
         </div>
     </div>

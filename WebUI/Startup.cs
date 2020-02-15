@@ -36,8 +36,17 @@ namespace WebUI
                 .UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
             services.AddScoped<ILogService, LogService>();
-            services.AddScoped<IAsyncRepository<Log>, LogRepository>();
+            services.AddScoped<IAsyncRepository<Log>, LogRepository>(); 
+            //services.Configure<IISOptions>(options =>
+            //{
+            //    options.ForwardClientCertificate = false;
+            //});
+            //services.Configure<IISServerOptions>(options =>
+            //{
+            //    options.AutomaticAuthentication = false;
+            //});
             services.AddHttpContextAccessor();
             services.AddControllersWithViews();
             services.AddRazorPages();

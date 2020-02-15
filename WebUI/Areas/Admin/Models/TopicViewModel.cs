@@ -33,5 +33,16 @@ namespace WebUI.Areas.Admin.Models
         public string Tags { get; set; }
         public int? DepartmentId { get; set; }
         public TopicType? TopicType { get; set; }
+        [Display(Name = "Ngày hiệu lực")]
+        public DateTime? EffectiveDate { get; set; }
+        [Display(Name = "Người ký")]
+        public string Signer { get; set; }
+        [StringLength(200)]
+        [Display(Name = "Nguồn")]
+        public string Source { get; set; }
+        [Display(Name = "Số trang")]
+        public string Page { get; set; }
+        [StringLength(200)]
+        public string ISSN { get; set; }
     }
 }
