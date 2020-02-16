@@ -14,6 +14,7 @@
     <link href="~/lib/fontawesome-free/css/all.min.css" rel="stylesheet" />
     <!-- overlayScrollbars -->
     <link href="~/css/adminlte.min.css" rel="stylesheet" />
+    <link href="~/css/site.css" rel="stylesheet" />
     <!-- Google Font: Source Sans Pro -->
 </head>
 <body class="hold-transition sidebar-mini">
@@ -73,7 +74,7 @@
                      alt="AdminLTE Logo"
                      class="brand-image img-circle elevation-3"
                      style="opacity: .8">
-                <span class="brand-text font-weight-light">Quản trị</span>
+                        Quản trị
             </a>
 
             <!-- Sidebar -->
@@ -157,13 +158,19 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="#" class="nav-link">
+                                    <a href="/admin/faqs/information" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Giới thiệu</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/admin/faqs/tutorial" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Hướng dẫn</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#" class="nav-link">
+                                    <a href="http://dhhp.edu.vn/~nhuongld/" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Liên hệ</p>
                                     </a>
@@ -174,7 +181,7 @@
                             @if (SignInManager.IsSignedIn(User))
                             {
                                 <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                                    <button type="submit" class="nav-link btn btn-link text-dark"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
+                                    <button type="submit" class="nav-link btn btn-link text-white"><i class="fas fa-sign-out-alt"></i> Đăng xuất</button>
                                 </form>
                             }
                             else

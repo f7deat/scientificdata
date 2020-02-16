@@ -20,19 +20,19 @@
                     {
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <a href="/admin/departments/details/@item.DepartmentId">@item.Name</a>
-                            <span class="badge badge-primary badge-pill">@item.Topics.Count</span>
+                            <span class="badge badge-danger badge-pill">@item.Topics.Count</span>
                         </li>
                     }
                     <li class="list-group-item">
                         <a href="/admin/departments">Xem thêm...</a>
                     </li>
                 </ul>
-                <ul class="list-group">
+                <ul class="list-group mt-2">
                     <li class="list-group-item active">Loại văn bản</li>
                     @foreach (var value in ApplicationCore.Helper.EnumHelper<ApplicationCore.Entities.TopicType>.GetValues(ApplicationCore.Entities.TopicType.Posts))
                     {
                         var description = ApplicationCore.Helper.EnumHelper<ApplicationCore.Entities.TopicType>.GetDisplayValue(value);
-                        <li class="list-group-item"><a href="#">@Html.DisplayFor(e => description)</a></li>
+                        <li class="list-group-item"><a href="/admin/searches/topictypes?topicType=@value">@Html.DisplayFor(e => description)</a></li>
                     }
                 </ul>
             </div>
@@ -49,7 +49,7 @@
                     <div class="row">
                         <div class="col-md-8">
                             <label>Nhập từ khóa</label>
-                            <input type="text" class="form-control mb-3" name="searchTerm" />
+                            <input type="text" class="form-control mb-3" name="searchTerm" value="@ViewBag.SearchTerm" />
                         </div>
                         <div class="col-md-4">
                             <label>Đơn vị</label>
@@ -76,7 +76,7 @@
                         </div>
                         <div class="col-md-3">
                             <label>Số hiệu</label>
-                            <input type="text" class="form-control mb-3" name="Number" />
+                            <input type="text" class="form-control mb-3" name="Number" value="@ViewBag.Number" />
                         </div>
                         <div class="col-md-1">
                             <label>Năm</label>
@@ -86,7 +86,7 @@
                         </div>
 
                     </div>
-                    <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> Tìm kiếm</button>
+                    <button type="submit" class="btn btn-danger"><i class="fa fa-search"></i> Tìm kiếm</button>
                     <a href="/admin/searches" class="btn btn-secondary"><i class="fa fa-redo"></i> Hủy</a>
                 </form>
             </div>
@@ -100,7 +100,7 @@
             </div>
             <!-- /.card-header -->
             <div class="card-body">
-                <table class="table table-bordered">
+                <table class="table table-bordered mb-3">
                     <thead>
                         <tr>
                             <th>Số hiệu</th>
@@ -115,25 +115,31 @@
                             <tr>
                                 <td>@item.Number</td>
                                 <td>
-                                    <a href="/admin/topics/details/@item.TopicId"><b>@item.Name</b></a>
+                                    <a href="/admin/topics/details/@item.TopicId?returnUrl=/admin/searches" data-toggle="tooltip" data-placement="top" title="@item.Description"><b>@item.Name</b></a>
                                 </td>
                                 <td>@item.PublishDate?.ToString("dd/MM/yyyy")</td>
-                                @*<td>@item.EffectiveDate?.ToString("dd/MM/yyyy")</td>*@
                                 <td>
-                                    <div class="btn-group">
-                                        <button class="btn btn-danger btn-sm" type="button">
-                                            <i class="fa fa-cloud-download-alt"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-danger dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <span class="sr-only">Toggle Dropdown</span>
-                                        </button>
-                                        <div class="dropdown-menu">
-                                            @foreach (var file in item.Attachments.Split(","))
-                                            {
-                                                <a href="~/files/@file" class="dropdown-item"><i class="fa fa-dot-circle"></i> @file</a>
-                                            }
+                                    @if (string.IsNullOrEmpty(item.Attachments))
+                                    {
+                                        <button class="btn btn-sm btn-danger disabled"><i class="fa fa-cloud-download-alt"></i></button>
+                                    }
+                                    else
+                                    {
+                                        <div class="btn-group">
+                                            <button class="btn btn-danger btn-sm" type="button">
+                                                <i class="fa fa-cloud-download-alt"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-danger dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" data-display="static" aria-haspopup="true" aria-expanded="false">
+                                                <span class="sr-only">Toggle Dropdown</span>
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-lg-right">
+                                                @foreach (var file in item.Attachments.Split(","))
+                                                {
+                                                    <a href="~/files/@file" class="dropdown-item"><i class="fa fa-dot-circle"></i> @file</a>
+                                                }
+                                            </div>
                                         </div>
-                                    </div>
+                                    }
                                 </td>
                             </tr>
                         }
@@ -146,10 +152,24 @@
                 }
 
 
-                <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)" class="btn btn-secondary btn-sm @prevDisabled shadow">
+                <a asp-action="Index"
+                   asp-route-pageIndex="@(Model.PageIndex - 1)"
+                   asp-route-searchTerm="@ViewBag.SearchTerm"
+                   asp-route-department="@ViewBag.Department"
+                   asp-route-category="@ViewBag.Category"
+                   asp-route-topicType="@ViewBag.TopicType"
+                   asp-route-number="@ViewBag.Number"
+                   class="btn btn-secondary btn-sm @prevDisabled shadow">
                     <i class="fa fa-angle-double-left"></i> Trang trước
                 </a>
-                <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)" class="btn btn-secondary btn-sm float-right @nextDisabled shadow">
+                <a asp-action="Index"
+                   asp-route-pageIndex="@(Model.PageIndex + 1)"
+                   asp-route-searchTerm="@ViewBag.SearchTerm"
+                   asp-route-department="@ViewBag.Department"
+                   asp-route-category="@ViewBag.Category"
+                   asp-route-topicType="@ViewBag.TopicType"
+                   asp-route-number="@ViewBag.Number"
+                   class="btn btn-secondary btn-sm float-right @nextDisabled shadow">
                     Trang sau <i class="fa fa-angle-double-right"></i>
                 </a>
             </div>
@@ -157,3 +177,10 @@
     </div>
 </div>
 
+@section scripts {
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+}

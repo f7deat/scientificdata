@@ -1,2 +1,26 @@
-﻿body {
+﻿[class*=sidebar-dark-] {
+    background-color: #dc3545;
 }
+    [class*=sidebar-dark-] .sidebar a {
+        color: #ffffff;
+    }
+
+.list-group-item.active {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+a {
+    color: #dc3545;
+}
+[class*=sidebar-dark] .brand-link {
+    border-bottom: 1px solid #ffffff;
+}
+a:hover {
+    color: darkred;
+}
+.note-editor.note-frame {
+    border: 1px solid #ced4da!important;
+}
+    .note-editor.note-frame .note-editing-area .note-editable {
+        min-height: 250px;
+    }

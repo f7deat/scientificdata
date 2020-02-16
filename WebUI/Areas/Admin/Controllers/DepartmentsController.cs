@@ -45,27 +45,16 @@ namespace WebUI.Areas.Admin.Controllers
                 .FirstOrDefaultAsync(m => m.DepartmentId == id);
 
             ViewBag.Title = department.Name;
+            ViewBag.Id = id;
 
             if (department == null)
             {
                 return NotFound();
             }
-            ViewBag.Authors = new SelectList(_context.Authors, "AuthorId", "Name");
-            ViewBag.Categories = await _context.Categories.ToListAsync();
 
-            var topics = _context.Topics;
+            var topics = _context.Topics.Where(x=>x.DepartmentId == id);
 
-            if (!string.IsNullOrEmpty(topicName))
-            {
-                ViewBag.TopicName = topicName;
-                return View(await PaginatedList<Topic>.CreateAsync(_context.Topics.Include(x => x.AuthorTopics)
-                        .Include(x => x.Category)
-                        .Where(x => x.Name.Contains(topicName))
-                        .OrderByDescending(x => x.ModifiedDate), pageIndex ?? 1, 10));
-            }
-
-            return View(await PaginatedList<Topic>.CreateAsync(_context.Topics.Include(x => x.AuthorTopics).Include(x => x.Category).OrderByDescending(x => x.ModifiedDate), pageIndex ?? 1, 10));
-            //return View(department);
+            return View(await PaginatedList<Topic>.CreateAsync(topics.Include(x => x.AuthorTopics).Include(x => x.Category).OrderByDescending(x => x.ModifiedDate), pageIndex ?? 1, 10));
         }
 
         // GET: Admin/Departments/Create

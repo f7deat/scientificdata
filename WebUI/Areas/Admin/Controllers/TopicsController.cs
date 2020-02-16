@@ -33,18 +33,18 @@ namespace WebUI.Areas.Admin.Controllers
 
         [Authorize]
         public async Task<IActionResult> Index(int? pageIndex,
-                                                string topicName)
+                                                string searchTerm)
         {
-            ViewBag.Authors = new SelectList(_context.Authors, "AuthorId", "Name");
-            ViewBag.Categories = await _context.Categories.ToListAsync();
-
+            //ViewBag.Authors = new SelectList(_context.Authors, "AuthorId", "Name");
+            //ViewBag.Categories = await _context.Categories.ToListAsync();
+            ViewBag.SearchTerm = searchTerm;
             var topics = _context.Topics;
-            if (!string.IsNullOrEmpty(topicName))
+            if (!string.IsNullOrEmpty(searchTerm))
             {
-                ViewBag.TopicName = topicName;
+                ViewBag.TopicName = searchTerm;
                 return View(await PaginatedList<Topic>.CreateAsync(_context.Topics.Include(x => x.AuthorTopics)
                         .Include(x => x.Category)
-                        .Where(x => x.Name.Contains(topicName))
+                        .Where(x => x.Name.Contains(searchTerm))
                         .OrderByDescending(x => x.ModifiedDate), pageIndex ?? 1, 10));
             }
 
@@ -270,7 +270,8 @@ namespace WebUI.Areas.Admin.Controllers
                             Signer = topicViewModel.Signer,
                             Source = topicViewModel.Source,
                             ISSN = topicViewModel.ISSN,
-                            Page = topicViewModel.Page
+                            Page = topicViewModel.Page,
+                            Tags = topicViewModel.Tags
                         };
 
                         if (attachmentFiles?.Count > 0)
@@ -359,6 +360,9 @@ namespace WebUI.Areas.Admin.Controllers
 
             _context.Topics.Remove(topic);
             await _context.SaveChangesAsync();
+
+            await _logService.Write(LogType.Info, string.Format($"Xóa tài liệu: {topic.Name}"));
+
             return RedirectToAction(nameof(Index));
         }
 

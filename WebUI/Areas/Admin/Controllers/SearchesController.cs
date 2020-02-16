@@ -22,25 +22,34 @@ namespace WebUI.Areas.Admin.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string searchTearm,
+        public async Task<IActionResult> Index(string searchTerm,
             int? department,
             int? category,
             TopicType? topicType,
             string number,
-            int? pageIndex)
+            int? pageIndex,
+            int? year)
         {
+            // Pagging and Searching
+            ViewBag.SearchTerm = searchTerm;
+            ViewBag.Depertment = department;
+            ViewBag.Category = category;
+            ViewBag.TopicType = topicType;
+            ViewBag.Number = number;
+
+            // Dropdown Data
             ViewBag.Categories = await _context.Categories.ToListAsync();
             ViewBag.Departments = await _context.Departments.Include(x => x.Topics).Take(5).ToListAsync();
 
-            ViewBag.CategoriesSelect = new SelectList(_context.Categories, "CategoryId", "Name");
-            ViewBag.DepartmentsSelect = new SelectList(_context.Departments, "DepartmentId", "Name");
+            ViewBag.CategoriesSelect = new SelectList(_context.Categories, "CategoryId", "Name", category);
+            ViewBag.DepartmentsSelect = new SelectList(_context.Departments, "DepartmentId", "Name", department);
 
-            ViewBag.Years = new SelectList(_context.Topics.Where(x => x.PublishDate != null).Select(x => x.PublishDate.Value.Year).Distinct());
+            ViewBag.Years = new SelectList(_context.Topics.Where(x => x.PublishDate != null).Select(x => x.PublishDate.Value.Year).Distinct(), year);
 
             var topics = _context.Topics.AsQueryable();
-            if (!string.IsNullOrEmpty(searchTearm))
+            if (!string.IsNullOrEmpty(searchTerm))
             {
-                topics = topics.Where(x => x.Name.Contains(searchTearm));
+                topics = topics.Where(x => x.Name.Contains(searchTerm));
             }
             if (department != null)
             {
@@ -58,8 +67,42 @@ namespace WebUI.Areas.Admin.Controllers
             {
                 topics = topics.Where(x => x.TopicType == topicType);
             }
+            if (year != null)
+            {
+                topics = topics.Where(x => x.PublishDate != null && x.PublishDate.Value.Year == year);
+            }
 
             return View(await PaginatedList<Topic>.CreateAsync(topics.OrderByDescending(x=>x.ModifiedDate), pageIndex ?? 1, 10));
+        }
+
+        public async Task<IActionResult> TopicTypes(TopicType topicType, string searchTerm, int? pageIndex)
+        {
+            ViewBag.SearchTerm = searchTerm;
+
+            var topics = _context.Topics.Where(x=>x.TopicType == topicType);
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                topics = topics.Where(x => x.Name.Contains(searchTerm));
+            }
+            
+            ViewBag.Title = EnumHelper<TopicType>.GetDisplayValue(topicType);
+            ViewBag.TopicType = topicType;
+
+            return View(await PaginatedList<Topic>.CreateAsync(topics.Include(x => x.AuthorTopics).Include(x => x.Category).OrderByDescending(x => x.ModifiedDate), pageIndex ?? 1, 10));
+        }
+
+        public async Task<IActionResult> Tags(string tagName, int? pageIndex, string returnUrl, string searchTerm)
+        {
+            ViewData["Title"] = tagName;
+            ViewData["SearchTerm"] = searchTerm;
+            ViewData["ReturnUrl"] = returnUrl;
+            var topics = _context.Topics.Where(x => x.Tags.Contains(tagName));
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                topics = topics.Where(x => x.Name.Contains(searchTerm));
+            }
+            topics = topics.OrderByDescending(x => x.ModifiedDate);
+            return View(await PaginatedList<Topic>.CreateAsync(topics, pageIndex ?? 1, 10));
         }
     }
 }

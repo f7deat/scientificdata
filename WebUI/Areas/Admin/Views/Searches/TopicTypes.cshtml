@@ -1,0 +1,105 @@
+﻿@model ApplicationCore.Helper.PaginatedList<ApplicationCore.Entities.Topic>
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+<link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
+<link href="~/lib/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" />
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fab fa-react"></i> @ViewData["Title"]</h3>
+    </div>
+    <!-- /.card-header -->
+    <div class="card-body">
+        <div class="clearfix mb-3">
+            <form class="form-inline float-right" action="/admin/searches/topictypes" method="get">
+                <input type="hidden" name="topictype" value="@ViewBag.TopicType" />
+                <input class="form-control mr-2" name="searchTerm" placeholder="Nhập tên tài liệu..." value="@ViewBag.SearchTerm" />
+                <button class="btn btn-primary mr-2" type="submit"><i class="fa fa-search"></i> Tìm kiếm</button>
+                <a class="btn btn-secondary" href="/admin/searches/topictypes?topictype=@ViewBag.TopicType"><i class="fa fa-redo"></i> Hủy</a>
+            </form>
+            @*<a href="/admin/topics/create" class="btn btn-primary"><i class="fa fa-plus"></i> Tạo mới</a>*@
+        </div>
+        <table class="table table-bordered mb-3">
+            <thead>
+                <tr>
+                    <th>
+                        Tên tài liệu
+                    </th>
+                    <th>
+                        Tác giả
+                    </th>
+                    <th>
+                        Danh mục
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="font-weight-bold"><a href="/admin/topics/details/@item.TopicId?returnUrl=/admin/searches/topictypes?topictype=@ViewBag.TopicType"><i class="fa fa-file"></i> @item.Name</a></div>
+                            <i class="text-muted text-sm"><i class="fa fa-calendar"></i>  @item.PublishDate?.ToString("dd/MM/yyyy")</i>
+                        </td>
+                        <td>
+                            @foreach (var author in item.AuthorTopics)
+                            {
+                                <a href="/admin/authors/details/@author.AuthorId" data-toggle="tooltip" data-placement="top" title="@author.Author.Name">
+                                    <img src="~/img/profile/@author.Author.Avatar" class="img-circle img-bordered-sm" width="40" height="40" />
+                                </a>
+                            }
+                        </td>
+                        <td>
+                            <b>@item.Category?.Name</b>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+
+        @{
+            var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+            var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+        }
+
+
+        <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)"
+           asp-route-searchTerm="@ViewBag.SearchTerm" 
+           asp-route-topicType="@ViewBag.TopicType" 
+           class="btn btn-secondary btn-sm @prevDisabled shadow">
+            <i class="fa fa-angle-double-left"></i> Trang trước
+        </a>
+        <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)"
+           asp-route-searchTerm="@ViewBag.SearchTerm" 
+           asp-route-topicType="@ViewBag.TopicType" 
+           class="btn btn-secondary btn-sm float-right @nextDisabled shadow">
+            Trang sau <i class="fa fa-angle-double-right"></i>
+        </a>
+
+    </div>
+    <!-- /.card-body -->
+
+</div>
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="Delete" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="Id" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

@@ -43,6 +43,7 @@ namespace WebUI.Areas.Admin.Controllers
 
             var category = await _context.Categories
                 .FirstOrDefaultAsync(m => m.CategoryId == id);
+            ViewBag.Id = id;
             if (category == null)
             {
                 return NotFound();

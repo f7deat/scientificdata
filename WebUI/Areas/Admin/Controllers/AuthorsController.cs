@@ -41,7 +41,7 @@ namespace WebUI.Areas.Admin.Controllers
         }
 
         [Authorize]
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int? id, int? pageIndex, string returnUrl)
         {
             if (id == null)
             {
@@ -49,13 +49,16 @@ namespace WebUI.Areas.Admin.Controllers
             }
 
             var author = await _context.Authors
-                .Include(a => a.Department)
                 .FirstOrDefaultAsync(m => m.AuthorId == id);
             if (author == null)
             {
                 return NotFound();
             }
-            ViewBag.Topics = await _context.AuthorTopics.Include(x => x.Topic).Where(x => x.AuthorId == id).ToListAsync();
+            ViewBag.PageIndex = pageIndex ?? 1;
+            ViewBag.Topics = await _context.AuthorTopics.Include(x => x.Topic).Where(x => x.AuthorId == id).OrderByDescending(x=>x.TopicId).Skip(((pageIndex ?? 1) - 1) * 5).Take(5).ToListAsync();
+            ViewBag.ReturnUrl = returnUrl;
+            ViewBag.Id = id;
+            ViewBag.Total = await _context.AuthorTopics.Where(x => x.AuthorId == id).CountAsync();
 
             return View(author);
         }
@@ -100,7 +103,7 @@ namespace WebUI.Areas.Admin.Controllers
         }
 
         [Authorize(Roles = "manager")]
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int? id, string returnUrl)
         {
             if (id == null)
             {
@@ -112,6 +115,7 @@ namespace WebUI.Areas.Admin.Controllers
             {
                 return NotFound();
             }
+            ViewBag.ReturnUrl = returnUrl;
             return View(author);
         }
 

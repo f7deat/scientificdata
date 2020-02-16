@@ -9,15 +9,16 @@
 <link href="~/lib/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" />
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">@ViewData["Title"]</h3>
+        <h3 class="card-title"><i class="fab fa-react"></i> @ViewData["Title"]</h3>
     </div>
     <!-- /.card-header -->
     <div class="card-body">
         <div class="clearfix mb-3">
-            @*<form class="form-inline float-right" action="/admin/authors/index" method="get">
-                    <input class="form-control mr-2" name="searchTerm" placeholder="Nhập tên tài liệu..." />
-                    <button class="btn btn-primary" type="submit"><i class="fa fa-search"></i> Tìm kiếm</button>
-                </form>*@
+            <form class="form-inline float-right" action="/admin/topics/index" method="get">
+                <input class="form-control mr-2" name="searchTerm" placeholder="Nhập tên tài liệu..." value="@ViewBag.SearchTerm" />
+                <button class="btn btn-primary mr-2" type="submit"><i class="fa fa-search"></i> Tìm kiếm</button>
+                <a href="/admin/topics" class="btn btn-secondary"><i class="fa fa-redo"></i> Hủy</a>
+            </form>
             <a asp-action="Create" class="btn btn-primary"><i class="fa fa-plus"></i> Tạo mới</a>
         </div>
         <table class="table table-bordered mb-3">
@@ -41,8 +42,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>
+                @*<tr>*@
+                    @*<td>
                         <form class="form-inline" action="/admin/topics/index" method="get">
                             <input type="text" class="form-control mr-2" placeholder="Nhập tên tài liệu..." name="topicName" value="@ViewBag.TopicName" />
                             <button class="btn btn-primary" type="submit"><i class="fa fa-arrow-circle-right"></i></button>
@@ -65,7 +66,7 @@
                             </select>
                             <button class="btn btn-primary" type="submit"><i class="fa fa-arrow-circle-right"></i></button>
                         </form>
-                    </td>
+                    </td>*@
                     @*<td>
                             <form class="form-inline" action="/admin/topics/index" method="get">
                                 <select class="form-control mr-2 d-block" name="publishDate">
@@ -77,13 +78,14 @@
                                 <button class="btn btn-primary" type="submit"><i class="fa fa-arrow-circle-right"></i></button>
                             </form>
                         </td>*@
-                    <td></td>
-                </tr>
+                @*</tr>*@
                 @foreach (var item in Model)
                 {
                     <tr>
                         <td>
-                            <div class="font-weight-bold"><a asp-action="Details" asp-route-id="@item.TopicId"><i class="fa fa-file"></i> @item.Name</a></div>
+                            <div class="font-weight-bold">
+                            <a asp-action="Details" asp-route-id="@item.TopicId" data-toggle="tooltip" data-placement="top" title="@item.Description"><i class="fa fa-file"></i> @item.Name</a>
+                            </div>
                             <i class="text-muted text-sm"><i class="fa fa-calendar"></i>  @item.CreatedDate</i>
                         </td>
                         <td>
@@ -95,7 +97,7 @@
                             }
                         </td>
                         <td>
-                            <b>@item.Category?.Name</b>
+                            <a href="/admin/categories/details/@item.CategoryId?returnUrl=/admin/topics">@item.Category?.Name</a>
                         </td>
                         @*<td>
                                 <b>@item.PublishDate?.Year</b>
@@ -119,11 +121,11 @@
 
 
         <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)"
-           asp-route-topicName="@ViewBag.TopicName" class="btn btn-secondary btn-sm @prevDisabled shadow">
+           asp-route-searchTerm="@ViewBag.SearchTerm" class="btn btn-secondary btn-sm @prevDisabled shadow">
             <i class="fa fa-angle-double-left"></i> Trang trước
         </a>
         <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)"
-           asp-route-topicName="@ViewBag.TopicName" class="btn btn-secondary btn-sm float-right @nextDisabled shadow">
+           asp-route-searchTerm="@ViewBag.SearchTerm" class="btn btn-secondary btn-sm float-right @nextDisabled shadow">
             Trang sau <i class="fa fa-angle-double-right"></i>
         </a>
 

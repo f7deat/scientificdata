@@ -15,14 +15,27 @@
         <div class="row">
             <div class="col-md-8">
 
-                <div class="py-3 border-bottom">
+                <div class="py-2 border-bottom">
+
+                    <div class="clearfix">
+                        <i class="text-muted">Số trang: @Model.Page</i>
+                    </div>
+
                     @Html.Raw(Model.Content)
-                    <div class="py-3">
-                        <i class="fa fa-tags"></i> Từ khóa: 
-                        @foreach (var item in Model.Tags.Split(",", StringSplitOptions.RemoveEmptyEntries))
+                    <div class="py-2">
+                        <i class="fa fa-tags"></i> Từ khóa:
+                        @if (!string.IsNullOrEmpty(Model.Tags))
                         {
-                            <span class="badge badge-dark">@item</span>
+                            @foreach (var item in Model.Tags.Split(",", StringSplitOptions.RemoveEmptyEntries))
+                            {
+                                <a href="/admin/searches/tags?tagName=@item&returnUrl=/admin/searches/tags&tagName">
+                                    <span class="badge badge-dark">@item</span>
+                                </a>
+                            }
                         }
+                    </div>
+                    <div class="py-2">
+                        Nguồn: @Model.Source
                     </div>
                 </div>
 
@@ -74,12 +87,13 @@
                 </div>
                 <label>Lĩnh vực</label>
                 <div class="form-group">
-                    @Model.Category.Name
+                    <a href="/admin/categories/details/@Model.CategoryId?returnUrl=/admin/topics/details/@Model.TopicId">@Model.Category.Name</a>
                 </div>
                 <label>Loại văn bản</label>
                 <div class="form-group">
-                    @{var description = ApplicationCore.Helper.EnumHelper<ApplicationCore.Entities.TopicType>.GetDisplayValue(Model.TopicType.Value);
-                        @Html.DisplayFor(e => description)
+                    @{
+                        var description = ApplicationCore.Helper.EnumHelper<ApplicationCore.Entities.TopicType>.GetDisplayValue(Model.TopicType.Value);
+                        <a href="/admin/searches/topictypes?topictype=@Model.TopicType.Value">@Html.DisplayFor(e => description)</a>
                     }
                 </div>
                 <label><i class="fa fa-file-archive"></i> Tệp tin đính kèm</label>
@@ -99,7 +113,12 @@
             </div>
         </div>
 
-        <div class="clearfix">
+        <div class="clearfix mt-3">
+
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal" data-whatever="@Model.TopicId">
+                <i class="fa fa-trash"></i> Xóa
+            </button>
+
             <div class="float-lg-right">
                 <a asp-action="Edit" asp-route-id="@Model.TopicId" asp-route-url="@Url.RouteUrl(Url.ActionContext.RouteData.Values)" class="btn btn-primary"><i class="fa fa-pen"></i> Chỉnh sửa</a>
 
@@ -115,3 +134,46 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="Delete" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="Id" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@*<partial name="_Topics" />*@
+
+@section scripts {
+    <script src="~/lib/select2/js/select2.full.min.js"></script>
+    <script>
+        $('#deleteModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget)
+            var recipient = button.data('whatever')
+            var modal = $(this)
+            modal.find('.modal-body input').val(recipient)
+        })
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+        //Initialize Select2 Elements
+        $('#AuthorIds').select2({
+            theme: 'bootstrap4'
+        })
+    </script>
+}

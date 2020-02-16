@@ -17,6 +17,7 @@ namespace WebUI.Areas.Admin.Models
         [StringLength(1000)]
         [Display(Name = "Tóm tắt")]
         public string Description { get; set; }
+        [Display(Name = "Nội dung")]
         public string Content { get; set; }
         public int? CategoryId { get; set; }
         public DateTime CreatedDate { get; set; }
