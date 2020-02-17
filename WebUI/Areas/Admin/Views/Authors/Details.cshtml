@@ -29,7 +29,7 @@
                             </li>
                         </ul>
 
-                        <a href="/admin/authors/edit/@Model.AuthorId?returnUrl=/admin/authors/edit/@Model.AuthorId" class="btn btn-danger btn-block"><i class="fa fa-pen"></i> <b>Chỉnh sửa</b></a>
+                        <a href="/admin/authors/edit/@Model.AuthorId?returnUrl=/admin/authors/details/@Model.AuthorId" class="btn btn-danger btn-block"><i class="fa fa-pen"></i> <b>Chỉnh sửa</b></a>
                     </div>
                     <!-- /.card-body -->
                 </div>
@@ -76,7 +76,7 @@
                             <div class="tab-pane" id="activity">
                                 <!-- Post -->
                                 <div class="post">
-                                    @Model.Bio
+                                    @Html.Raw(Model.Bio)
                                 </div>
                                 <!-- /.post -->
                                 <!-- /.post -->

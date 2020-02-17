@@ -349,3 +349,4 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 /WebUI/wwwroot/files
+/WebUI/wwwroot/img/profile

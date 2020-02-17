@@ -32,7 +32,10 @@
                     @foreach (var value in ApplicationCore.Helper.EnumHelper<ApplicationCore.Entities.TopicType>.GetValues(ApplicationCore.Entities.TopicType.Posts))
                     {
                         var description = ApplicationCore.Helper.EnumHelper<ApplicationCore.Entities.TopicType>.GetDisplayValue(value);
-                        <li class="list-group-item"><a href="/admin/searches/topictypes?topicType=@value">@Html.DisplayFor(e => description)</a></li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="/admin/searches/topictypes?topicType=@value">@Html.DisplayFor(e => description)</a>
+                            <span class="badge badge-danger badge-pill">@Model.Count(x => x.TopicType == value)</span>
+                        </li>
                     }
                 </ul>
             </div>

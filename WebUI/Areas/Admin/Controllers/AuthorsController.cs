@@ -135,6 +135,12 @@ namespace WebUI.Areas.Admin.Controllers
                 {
                     if (AvatarFile != null)
                     {
+                        var path = Path.Combine(_webHostEnvironment.WebRootPath, "img/profile", author.Avatar);
+                        if (System.IO.File.Exists(path))
+                        {
+                            System.IO.File.Delete(path);
+                        }
+
                         var extension = Path.GetExtension(AvatarFile.FileName).ToLower();
                         var fileName = Path.GetRandomFileName() + extension;
                         var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "img/profile", fileName);
@@ -175,18 +181,25 @@ namespace WebUI.Areas.Admin.Controllers
         [Authorize(Roles = "manager")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var author = await _context.Authors.FindAsync(id);
-            if (!string.IsNullOrEmpty(author.Avatar))
+            if (_context.AuthorTopics.Any(x=>x.AuthorId == id))
             {
-                var path = Path.Combine(_webHostEnvironment.WebRootPath, "img/profile", author?.Avatar);
-                if (System.IO.File.Exists(path))
-                {
-                    System.IO.File.Delete(path);
-                }
+                TempData["Info"] = "toastr[\"error\"](\"Tác giả này đang có bài viết được xuất bản, bạn cần xóa tác giả này khỏi tất cả bài viết!\")";
             }
-            _context.Authors.Remove(author);
-            await _context.SaveChangesAsync();
-
+            else
+            {
+                var author = await _context.Authors.FindAsync(id);
+                if (!string.IsNullOrEmpty(author.Avatar))
+                {
+                    var path = Path.Combine(_webHostEnvironment.WebRootPath, "img/profile", author?.Avatar);
+                    if (System.IO.File.Exists(path))
+                    {
+                        System.IO.File.Delete(path);
+                    }
+                }
+                _context.Authors.Remove(author);
+                await _context.SaveChangesAsync();
+                TempData["Info"] = "toastr[\"success\"](\"Xóa tác giả thành công!\")";
+            }
 
             return RedirectToAction(nameof(Index));
         }

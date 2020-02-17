@@ -86,7 +86,7 @@
                             <div class="font-weight-bold">
                             <a asp-action="Details" asp-route-id="@item.TopicId" data-toggle="tooltip" data-placement="top" title="@item.Description"><i class="fa fa-file"></i> @item.Name</a>
                             </div>
-                            <i class="text-muted text-sm"><i class="fa fa-calendar"></i>  @item.CreatedDate</i>
+                            <i class="text-muted text-sm"><i class="fa fa-calendar"></i> Ngày cập nhật: @item.ModifiedDate - bởi: @item.UserId</i>
                         </td>
                         <td>
                             @foreach (var author in item.AuthorTopics)

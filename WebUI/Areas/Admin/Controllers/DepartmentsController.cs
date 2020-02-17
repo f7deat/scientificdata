@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ApplicationCore.Entities;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using ApplicationCore.Helper;
+using ApplicationCore.Interfaces;
 
 namespace WebUI.Areas.Admin.Controllers
 {
@@ -16,10 +14,12 @@ namespace WebUI.Areas.Admin.Controllers
     public class DepartmentsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogService _logService;
 
-        public DepartmentsController(ApplicationDbContext context)
+        public DepartmentsController(ApplicationDbContext context, ILogService logService)
         {
             _context = context;
+            _logService = logService;
         }
 
         [Authorize]
@@ -28,9 +28,9 @@ namespace WebUI.Areas.Admin.Controllers
             if (!string.IsNullOrEmpty(searchTerm))
             {
                 ViewBag.SearchTerm = searchTerm;
-                return View(await PaginatedList<Department>.CreateAsync(_context.Departments.Where(x => x.Name.Contains(searchTerm)), pageIndex ?? 1, 10));
+                return View(await PaginatedList<Department>.CreateAsync(_context.Departments.Include(x => x.Topics).Where(x => x.Name.Contains(searchTerm)), pageIndex ?? 1, 10));
             }
-            return View(await PaginatedList<Department>.CreateAsync(_context.Departments, pageIndex ?? 1, 10));
+            return View(await PaginatedList<Department>.CreateAsync(_context.Departments.Include(x => x.Topics), pageIndex ?? 1, 10));
         }
 
         [Authorize]
@@ -52,12 +52,11 @@ namespace WebUI.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var topics = _context.Topics.Where(x=>x.DepartmentId == id);
+            var topics = _context.Topics.Where(x => x.DepartmentId == id);
 
             return View(await PaginatedList<Topic>.CreateAsync(topics.Include(x => x.AuthorTopics).Include(x => x.Category).OrderByDescending(x => x.ModifiedDate), pageIndex ?? 1, 10));
         }
 
-        // GET: Admin/Departments/Create
         public IActionResult Create()
         {
             return View();
@@ -149,9 +148,17 @@ namespace WebUI.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var department = await _context.Departments.FindAsync(id);
-            _context.Departments.Remove(department);
-            await _context.SaveChangesAsync();
+            if (_context.Topics.Any(x => x.DepartmentId == id))
+            {
+                TempData["Info"] = "toastr[\"error\"](\"Đơn vị này đang tồn tại tài liệu. Bạn cần xóa hoặc di chuyển toàn bộ tài liệu trước khi xóa!\")";
+            }
+            else
+            {
+                var department = await _context.Departments.FindAsync(id);
+                _context.Departments.Remove(department);
+                await _context.SaveChangesAsync();
+                TempData["Info"] = "toastr[\"success\"](\"Xóa đơn vị thành công!\")";
+            }
             return RedirectToAction(nameof(Index));
         }
 
@@ -159,5 +166,27 @@ namespace WebUI.Areas.Admin.Controllers
         {
             return _context.Departments.Any(e => e.DepartmentId == id);
         }
+
+        #region API
+        [HttpPost]
+        [Authorize(Roles = "manager")]
+        public JsonResult QuickCreate(string name, string description)
+        {
+            if (!string.IsNullOrEmpty(name))
+            {
+                var department = new Department
+                {
+                    Name = name,
+                    Description = description
+                };
+                _context.Departments.Add(department);
+                _context.SaveChanges();
+                return Json(department.DepartmentId);
+            }
+            _logService.Write(LogType.Warning, "Thêm nhanh đơn vị thất bại, tên đơn vị đang để trống");
+            return Json(-1);
+        }
+        #endregion
+
     }
 }

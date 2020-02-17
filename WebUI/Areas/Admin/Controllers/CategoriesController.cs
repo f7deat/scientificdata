@@ -28,9 +28,9 @@ namespace WebUI.Areas.Admin.Controllers
             if (!string.IsNullOrEmpty(searchTerm))
             {
                 ViewBag.SearchTerm = searchTerm;
-                return View(await PaginatedList<Category>.CreateAsync(_context.Categories.Where(x=>x.Name.Contains(searchTerm)), pageIndex ?? 1, 10));
+                return View(await PaginatedList<Category>.CreateAsync(_context.Categories.Include(x=>x.Topics).Where(x=>x.Name.Contains(searchTerm) || x.Description.Contains(searchTerm)), pageIndex ?? 1, 10));
             }
-            return View(await PaginatedList<Category>.CreateAsync(_context.Categories, pageIndex ?? 1, 10));
+            return View(await PaginatedList<Category>.CreateAsync(_context.Categories.Include(x => x.Topics), pageIndex ?? 1, 10));
         }
 
         [Authorize]

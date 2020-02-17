@@ -8,6 +8,7 @@
 <link href="~/lib/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" />
 <link href="~/lib/summernote/summernote-bs4.css" rel="stylesheet" />
 <link href="~/lib/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet" />
+<link href="~/lib/toastr/toastr.css" rel="stylesheet" />
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">@ViewData["Title"]</h3>
@@ -53,7 +54,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label class="control-label">Ngày ban hành</label>
+                        <label asp-for="PublishDate" class="control-label"></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
@@ -63,7 +64,7 @@
                         <span asp-validation-for="PublishDate" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label class="control-label">Ngày hiệu lực</label>
+                        <label asp-for="EffectiveDate" class="control-label"></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
@@ -76,9 +77,13 @@
                         <label class="control-label">Danh mục</label>
                         <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories"></select>
                     </div>
-                    <div class="form-group">
-                        <label class="control-label">Đơn vị</label>
+                    <label class="control-label">Đơn vị</label>
+                    <div class="input-group mb-3">
                         <select asp-for="DepartmentId" class="form-control" asp-items="ViewBag.Departments"></select>
+                        <div class="input-group-append">
+                            <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#DepartmentModal"><i class="fa fa-plus-circle"></i></button>
+                        </div>
+                        <span asp-validation-for="DepartmentId" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label class="control-label">Loại văn bản</label>
@@ -89,6 +94,7 @@
                                 <option value="@value">@Html.DisplayFor(e => description)</option>
                             }
                         </select>
+                        <span asp-validation-for="TopicType" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="Signer" class="control-label"></label>
@@ -139,12 +145,37 @@
     </div>
 </div>
 
+<div class="modal fade" id="DepartmentModal" tabindex="-1" role="dialog" aria-labelledby="DepartmentModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="DepartmentModalLabel">Thêm đơn vị</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label>Tên đơn vị</label>
+                <input type="text" id="DepartmentName" class="form-control mb-3" />
+                <label>Mô tả</label>
+                <textarea id="DeparmentDescription" class="form-control mb-3"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-danger" onclick="addDepartment()">Thêm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script src="~/lib/inputmask/min/jquery.inputmask.bundle.min.js"></script>
     <script src="~/lib/bs-custom-file-input/bs-custom-file-input.min.js"></script>
     <script src="~/lib/summernote/summernote-bs4.js"></script>
     <script src="~/lib/select2/js/select2.full.min.js"></script>
+    <script src="~/lib/toastr/toastr.min.js"></script>
+    <script src="~/js/topic.js"></script>
     <script>
         $(function () {
             // Summernote

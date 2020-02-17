@@ -14,6 +14,7 @@ using System.IO;
 using ApplicationCore.Helper;
 using ApplicationCore.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace WebUI.Areas.Admin.Controllers
 {
@@ -110,7 +111,8 @@ namespace WebUI.Areas.Admin.Controllers
                             Signer = topicViewModel.Signer,
                             Source = topicViewModel.Source,
                             ISSN = topicViewModel.ISSN,
-                            Page = topicViewModel.Page
+                            Page = topicViewModel.Page,
+                            UserId = User.Identity.Name
                         };
 
                         if (attachmentFiles?.Count() > 0)
@@ -259,7 +261,7 @@ namespace WebUI.Areas.Admin.Controllers
                             Name = topicViewModel.Name,
                             Status = topicViewModel.Status,
                             Url = topicViewModel.Url,
-                            UserId = topicViewModel.UserId,
+                            UserId = User.Identity.Name,
                             ModifiedDate = DateTime.Now,
                             PublishDate = topicViewModel.PublishDate,
                             Attachments = topicViewModel.Attachments,
@@ -271,7 +273,8 @@ namespace WebUI.Areas.Admin.Controllers
                             Source = topicViewModel.Source,
                             ISSN = topicViewModel.ISSN,
                             Page = topicViewModel.Page,
-                            Tags = topicViewModel.Tags
+                            Tags = topicViewModel.Tags,
+                            Number = topicViewModel.Number
                         };
 
                         if (attachmentFiles?.Count > 0)
