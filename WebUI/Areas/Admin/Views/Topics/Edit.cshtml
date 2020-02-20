@@ -75,9 +75,13 @@
                         </div>
                         <span asp-validation-for="EffectiveDate" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label class="control-label">Danh mục</label>
+                    <label asp-for="CategoryId" class="control-label"></label>
+                    <div class="input-group mb-3">
                         <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories"></select>
+                        <div class="input-group-append">
+                            <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#CategoryModal"><i class="fa fa-plus-circle"></i></button>
+                        </div>
+                        <span asp-validation-for="CategoryId" class="text-danger"></span>
                     </div>
                     <label asp-for="DepartmentId" class="control-label"></label>
                     <div class="input-group mb-3">
@@ -179,6 +183,29 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
                 <button type="button" class="btn btn-danger" onclick="addDepartment()">Thêm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="CategoryModal" tabindex="-1" role="dialog" aria-labelledby="CategoryModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="CategoryModalLabel">Thêm lĩnh vực</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label>Tên lĩnh vực</label>
+                <input type="text" id="CategoryName" class="form-control mb-3" />
+                <label>Mô tả</label>
+                <textarea id="CategoryDescription" class="form-control mb-3"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-danger" onclick="addCategory()">Thêm</button>
             </div>
         </div>
     </div>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace ApplicationCore.Entities
 {
@@ -43,10 +44,13 @@ namespace ApplicationCore.Entities
         [StringLength(200)]
         public string ISSN { get; set; }
 
+        [JsonIgnore]
         public virtual Warehouse Warehouse { get; set; }
+        [JsonIgnore]
         public virtual Category Category { get; set; }
+        [JsonIgnore]
         public virtual Department Department { get; set; }
-
+        [JsonIgnore]
         public virtual ICollection<AuthorTopic> AuthorTopics { get; set; }
     }
 

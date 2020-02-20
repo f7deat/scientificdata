@@ -98,12 +98,12 @@
             <div class="card-header">
                 <h3 class="card-title"><i class="fab fa-react"></i> Kết quả tìm kiếm</h3>
                 <div class="card-tools">
-                    Tổng số: <b>@Model.Count</b>
+                    Tổng số: <b>@Model.TotalRecord</b>
                 </div>
             </div>
             <!-- /.card-header -->
             <div class="card-body">
-                <table class="table table-bordered mb-3">
+                <table class="table table-bordered table-striped table-hover table-responsive mb-3">
                     <thead>
                         <tr>
                             <th>Số hiệu</th>
@@ -118,7 +118,29 @@
                             <tr>
                                 <td>@item.Number</td>
                                 <td>
-                                    <a href="/admin/topics/details/@item.TopicId?returnUrl=/admin/searches" data-toggle="tooltip" data-placement="top" title="@item.Description"><b>@item.Name</b></a>
+                                    <a href="/admin/topics/details/@item.TopicId?returnUrl=/admin/searches"><b>@item.Name</b></a>
+                                    <div class="text-muted">
+                                        @if (item.Description?.Length > 200)
+                                        {
+                                            @item.Description.Substring(0, 200)
+                                        }
+                                        else
+                                        {
+                                            @item.Description
+                                        }
+                                    </div>
+                                    <div class="text-muted">
+                                        <i class="fa fa-tags"></i> Từ khóa:
+                                        @if (!string.IsNullOrEmpty(item.Tags))
+                                        {
+                                            @foreach (var tag in item.Tags.Split(",", StringSplitOptions.RemoveEmptyEntries))
+                                            {
+                                                <a href="/admin/searches/tags?tagName=@tag&returnUrl=/admin/searches/tags&tagName">
+                                                    <span class="badge badge-dark">@tag</span>
+                                                </a>
+                                            }
+                                        }
+                                    </div>
                                 </td>
                                 <td>@item.PublishDate?.ToString("dd/MM/yyyy")</td>
                                 <td>

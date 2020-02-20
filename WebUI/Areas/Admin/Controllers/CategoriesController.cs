@@ -9,6 +9,7 @@ using ApplicationCore.Entities;
 using Infrastructure.Data;
 using ApplicationCore.Helper;
 using Microsoft.AspNetCore.Authorization;
+using ApplicationCore.Interfaces;
 
 namespace WebUI.Areas.Admin.Controllers
 {
@@ -16,10 +17,12 @@ namespace WebUI.Areas.Admin.Controllers
     public class CategoriesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogService _logService;
 
-        public CategoriesController(ApplicationDbContext context)
+        public CategoriesController(ApplicationDbContext context, ILogService logService)
         {
             _context = context;
+            _logService = logService;
         }
 
         [Authorize]
@@ -150,5 +153,26 @@ namespace WebUI.Areas.Admin.Controllers
         {
             return _context.Categories.Any(e => e.CategoryId == id);
         }
+
+        #region API
+        [HttpPost]
+        [Authorize(Roles = "manager")]
+        public JsonResult QuickCreate(string name, string description)
+        {
+            if (!string.IsNullOrEmpty(name))
+            {
+                var category = new Category
+                {
+                    Name = name,
+                    Description = description
+                };
+                _context.Categories.Add(category);
+                _context.SaveChanges();
+                return Json(category.CategoryId);
+            }
+            _logService.Write(LogType.Warning, "Thêm nhanh lĩnh vực thất bại, tên lĩnh vực đang để trống");
+            return Json(-1);
+        }
+        #endregion
     }
 }

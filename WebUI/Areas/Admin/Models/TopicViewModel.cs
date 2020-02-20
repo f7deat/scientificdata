@@ -17,6 +17,7 @@ namespace WebUI.Areas.Admin.Models
         public string Description { get; set; }
         [Display(Name = "Nội dung")]
         public string Content { get; set; }
+        [Display(Name = "Lĩnh vực")]
         public int? CategoryId { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime ModifiedDate { get; set; }
@@ -34,6 +35,7 @@ namespace WebUI.Areas.Admin.Models
         public string Tags { get; set; }
         [Display(Name = "Đơn vị")]
         public int? DepartmentId { get; set; }
+        [Display(Name = "Loại văn bản")]
         public TopicType? TopicType { get; set; }
         [Display(Name = "Ngày hiệu lực")]
         public DateTime? EffectiveDate { get; set; }

@@ -26,9 +26,9 @@ namespace WebUI.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             // Tác giả mới
-            ViewBag.NewAuthors = await _context.Authors.OrderByDescending(x => x.CreatedDate).Take(8).ToListAsync();
+            ViewBag.NewAuthors = await _context.Authors.OrderByDescending(x => x.CreatedDate).Take(4).ToListAsync();
             // Tài liệu mới
-            ViewBag.NewTopics = await _context.Topics.OrderByDescending(x => x.CreatedDate).Take(5).ToListAsync();
+            ViewBag.NewTopics = await _context.Topics.OrderByDescending(x => x.CreatedDate).Take(3).ToListAsync();
 
             ViewBag.TopicCount = await _context.Topics.CountAsync();
             ViewBag.AuthorCount = await _context.Authors.CountAsync();
