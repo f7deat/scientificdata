@@ -1,0 +1,113 @@
+﻿@model ApplicationCore.Helper.PaginatedList<ApplicationCore.Entities.Warehouse>
+
+@{
+    ViewData["Title"] = "Tuyển tập, số báo";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fab fa-react"></i> @ViewData["Title"]</h3>
+    </div>
+    <!-- /.card-header -->
+    <div class="card-body">
+        <div class="clearfix mb-3">
+            <form class="form-inline float-right" action="/admin/warehouses/index" method="get">
+                <input class="form-control mr-2" name="searchTerm" placeholder="Nhập tên tài liệu..." value="@ViewBag.SearchTerm" />
+                <button class="btn btn-primary mr-2" type="submit"><i class="fa fa-search"></i> Tìm kiếm</button>
+                <a href="/admin/warehouses" class="btn btn-secondary"><i class="fa fa-redo"></i> Hủy</a>
+            </form>
+            <a asp-action="Create" class="btn btn-primary"><i class="fa fa-plus"></i> Tạo mới</a>
+        </div>
+        <table class="table table-bordered mb-3">
+            <thead>
+                <tr>
+                    <th>
+                        Tên
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.WarehouseId">Edit</a> |
+                            <a asp-action="Details" asp-route-id="@item.WarehouseId">Details</a> |
+                            <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-whatever="@item.WarehouseId">
+                                <i class="fa fa-trash"></i> Xóa
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+
+
+        @{
+            var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+            var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+        }
+
+
+        <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)"
+           asp-route-searchTerm="@ViewBag.SearchTerm" class="btn btn-secondary btn-sm @prevDisabled shadow">
+            <i class="fa fa-angle-double-left"></i> Trang trước
+        </a>
+        <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)"
+           asp-route-searchTerm="@ViewBag.SearchTerm" class="btn btn-secondary btn-sm float-right @nextDisabled shadow">
+            Trang sau <i class="fa fa-angle-double-right"></i>
+        </a>
+
+    </div>
+    <!-- /.card-body -->
+
+</div>
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="Delete" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="Id" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@*<partial name="_Topics" />*@
+
+@section scripts {
+    <script src="~/lib/select2/js/select2.full.min.js"></script>
+    <script src="~/js/export.js"></script>
+    <script>
+        $('#deleteModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget)
+            var recipient = button.data('whatever')
+            var modal = $(this)
+            modal.find('.modal-body input').val(recipient)
+        })
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+        //Initialize Select2 Elements
+        $('#AuthorIds').select2({
+            theme: 'bootstrap4'
+        })
+    </script>
+}

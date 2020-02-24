@@ -58,5 +58,39 @@ namespace WebUI.Areas.Admin.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(string email, string phoneNumber, string role)
+        {
+            if (!string.IsNullOrEmpty(email))
+            {
+                var user = await _userManager.FindByEmailAsync(email);
+                if (!string.IsNullOrEmpty(phoneNumber))
+                {
+                    user.PhoneNumber = phoneNumber;
+                }
+                if (!string.IsNullOrEmpty(role))
+                {
+                    var curentRole = await _userManager.GetRolesAsync(user);
+                    await _userManager.RemoveFromRolesAsync(user, curentRole);
+                    if ("manager".Equals(role))
+                    {
+                        await _userManager.AddToRoleAsync(user, "manager");
+                    }
+                    else
+                    {
+                        await _userManager.AddToRoleAsync(user, "watcher");
+                    }
+                }
+                await _userManager.UpdateAsync(user);
+                await _logService.Write(LogType.Info, string.Format("Tài khoản {0} cập nhật thành công!", email));
+                TempData["Info"] = "toastr[\"success\"](\"Sửa thành công\")";
+            }
+            else
+            {
+                TempData["Info"] = "toastr[\"error\"](\"Sửa thất bại!\")";
+            }
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

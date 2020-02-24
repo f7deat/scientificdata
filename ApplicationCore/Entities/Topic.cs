@@ -43,6 +43,7 @@ namespace ApplicationCore.Entities
         public string Page { get; set; }
         [StringLength(200)]
         public string ISSN { get; set; }
+        public int? WarehouseId { get; set; }
 
         [JsonIgnore]
         public virtual Warehouse Warehouse { get; set; }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ApplicationCore.Entities;
 using ApplicationCore.Helper;
+using ApplicationCore.Interfaces;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,9 +18,11 @@ namespace WebUI.Areas.Admin.Controllers
     public class SearchesController : Controller
     {
         private readonly ApplicationDbContext _context;
-        public SearchesController(ApplicationDbContext context)
+        private readonly ILogService _logService;
+        public SearchesController(ApplicationDbContext context, ILogService logService)
         {
             _context = context;
+            _logService = logService;
         }
 
         public async Task<IActionResult> Index(string searchTerm,
@@ -103,6 +106,17 @@ namespace WebUI.Areas.Admin.Controllers
             }
             topics = topics.OrderByDescending(x => x.ModifiedDate);
             return View(await PaginatedList<Topic>.CreateAsync(topics, pageIndex ?? 1, 10));
+        }
+
+        public async Task<IActionResult> Signer(string signer, int? pageIndex)
+        {
+            if (!string.IsNullOrEmpty(signer))
+            {
+                ViewData["Title"] = signer;
+                return View(await PaginatedList<Topic>.CreateAsync(_context.Topics.Where(x => x.Signer.ToLower() == signer.ToLower()), pageIndex ?? 1, 10));
+            }
+            await _logService.Write(LogType.Warning, "Param người ký bị bỏ trống!");
+            return NotFound();
         }
     }
 }

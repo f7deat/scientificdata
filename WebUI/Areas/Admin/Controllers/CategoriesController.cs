@@ -31,7 +31,7 @@ namespace WebUI.Areas.Admin.Controllers
             if (!string.IsNullOrEmpty(searchTerm))
             {
                 ViewBag.SearchTerm = searchTerm;
-                return View(await PaginatedList<Category>.CreateAsync(_context.Categories.Include(x=>x.Topics).Where(x=>x.Name.Contains(searchTerm) || x.Description.Contains(searchTerm)), pageIndex ?? 1, 10));
+                return View(await PaginatedList<Category>.CreateAsync(_context.Categories.Include(x => x.Topics).Where(x => x.Name.Contains(searchTerm) || x.Description.Contains(searchTerm)), pageIndex ?? 1, 10));
             }
             return View(await PaginatedList<Category>.CreateAsync(_context.Categories.Include(x => x.Topics), pageIndex ?? 1, 10));
         }
@@ -56,7 +56,7 @@ namespace WebUI.Areas.Admin.Controllers
 
             ViewData["Title"] = category.Name;
 
-            var topics = await PaginatedList<Topic>.CreateAsync(_context.Topics.Include(x => x.AuthorTopics).OrderByDescending(x => x.ModifiedDate).Where(x=>x.CategoryId == id), pageIndex ?? 1, 10);
+            var topics = await PaginatedList<Topic>.CreateAsync(_context.Topics.Include(x => x.AuthorTopics).OrderByDescending(x => x.ModifiedDate).Where(x => x.CategoryId == id), pageIndex ?? 1, 10);
 
             return View(topics);
         }
@@ -137,7 +137,7 @@ namespace WebUI.Areas.Admin.Controllers
         {
             var category = await _context.Categories.FindAsync(id);
 
-            if (_context.Topics.Any(x=>x.CategoryId == id))
+            if (_context.Topics.Any(x => x.CategoryId == id))
             {
                 TempData["Info"] = "toastr[\"error\"](\"Danh mục này đang tồn tại tài liệu. Bạn cần xóa hoặc di chuyển toàn bộ tài liệu trước khi xóa danh mục này!\")";
                 return RedirectToAction(nameof(Index));
@@ -173,6 +173,25 @@ namespace WebUI.Areas.Admin.Controllers
             _logService.Write(LogType.Warning, "Thêm nhanh lĩnh vực thất bại, tên lĩnh vực đang để trống");
             return Json(-1);
         }
+
+        public JsonResult Chart()
+        {
+            var label = new List<string>();
+            var count = new List<int>();
+            foreach (var line in _context.Topics.Include(x => x.Category).GroupBy(info => info.Category.Name)
+                        .Select(group => new
+                        {
+                            Metric = group.Key,
+                            Count = group.Count()
+                        })
+                        .OrderByDescending(x => x.Count).Take(6))
+            {
+                label.Add(line.Metric);
+                count.Add(line.Count);
+            }
+            return Json(new { labels = label, datasets = new { data = count, backgroundColor = new string[] { "#f56954", "#00a65a", "#f39c12", "#00c0ef", "#3c8dbc", "#d2d6de" } } });
+        }
+
         #endregion
     }
 }

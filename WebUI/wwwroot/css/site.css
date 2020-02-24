@@ -24,3 +24,6 @@ a:hover {
     .note-editor.note-frame .note-editing-area .note-editable {
         min-height: 250px;
     }
+.users-list > li img {
+    height: 128px;
+}

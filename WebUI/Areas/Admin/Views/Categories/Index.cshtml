@@ -64,6 +64,7 @@
         </a>
     </div>
 </div>
+</div>
 
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -88,6 +89,7 @@
 </div>
 
 @section scripts {
+    <script src="~/lib/chart.js/Chart.min.js"></script>
     <script src="~/lib/toastr/toastr.min.js"></script>
     <script>
          $(function () {
@@ -99,6 +101,34 @@
             var modal = $(this)
             modal.find('.modal-body input').val(recipient)
         })
+        // chart
+        //var datac;
+        //$.ajax({
+        //    url: '/admin/categories/chart',
+        //    type: 'GET',
+        //    dataType: 'html',
+        //    data: {}
+        //}).done(function (response) {
+        //    if (response !== '') {
+        //        datac = JSON.parse(response);
+        //    }
+        //});
+        //setTimeout(function () {
+        //    var pieChartCanvas = $('#pieChart').get(0).getContext('2d');
+        //        var pieData = datac;
+        //        var pieOptions = {
+        //        maintainAspectRatio: false,
+        //        responsive: true,
+        //        };
+
+        //        var pieChart = new Chart(pieChartCanvas, {
+        //        type: 'pie',
+        //        data: pieData,
+        //        options: pieOptions
+        //        });
+        //}, 3000);
+
+
         @Html.Raw(TempData["Info"])
     </script>
 }

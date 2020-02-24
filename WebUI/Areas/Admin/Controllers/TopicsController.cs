@@ -234,9 +234,9 @@ namespace WebUI.Areas.Admin.Controllers
             {
                 try
                 {
-                    if (!string.IsNullOrEmpty(topicViewModel.Attachments))
+                    if (!string.IsNullOrEmpty(topicViewModel.Attachments) && topicViewModel.Attachments?.Length > 2)
                     {
-                        if (topicViewModel.Attachments.LastIndexOf(",") > 0)
+                        if (topicViewModel.Attachments.Substring(topicViewModel.Attachments.Length - 1).Equals(","))
                         {
                             topicViewModel.Attachments = topicViewModel.Attachments[0..^1];
                         }
@@ -378,10 +378,10 @@ namespace WebUI.Areas.Admin.Controllers
                 if (!string.IsNullOrEmpty(file))
                 {
                     var topic = _context.Topics.Find(id);
-                    if (!string.IsNullOrEmpty(topic.Attachments) && topic != null)
+                    if (!string.IsNullOrEmpty(topic.Attachments) && topic != null && topic.Attachments?.Length > 2)
                     {
                         topic.Attachments = topic.Attachments.Replace(file, string.Empty);
-                        if (topic.Attachments.LastIndexOf(",") > 0)
+                        if (topic.Attachments.Substring(topic.Attachments.Length - 1).Equals(","))
                         {
                             topic.Attachments = topic.Attachments[0..^1];
                         }

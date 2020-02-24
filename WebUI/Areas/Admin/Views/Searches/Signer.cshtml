@@ -1,0 +1,77 @@
+﻿@model ApplicationCore.Helper.PaginatedList<ApplicationCore.Entities.Topic>
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fab fa-react"></i> @ViewData["Title"]</h3>
+    </div>
+    <!-- /.card-header -->
+    <div class="card-body">
+        @*<div class="clearfix mb-3">
+                <form class="form-inline float-right" action="/admin/searches/tags" method="get">
+                    <input type="hidden" name="tagName" value="@ViewBag.Title" />
+                    <input class="form-control mr-2" name="searchTerm" placeholder="Nhập tên tài liệu..." value="@ViewBag.SearchTerm" />
+                    <button class="btn btn-primary mr-2" type="submit"><i class="fa fa-search"></i> Tìm kiếm</button>
+                    <a class="btn btn-secondary" href="/admin/searches/tags?tagName=@ViewBag.Title"><i class="fa fa-redo"></i> Hủy</a>
+                </form>
+            </div>*@
+        <table class="table table-bordered mb-3">
+            <thead>
+                <tr>
+                    <th>
+                        Tên tài liệu
+                    </th>
+                    <th>
+                        Tác giả
+                    </th>
+                    <th>
+                        Danh mục
+                    </th>
+                    @*<th>
+                            Tác vụ
+                        </th>*@
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="font-weight-bold"><a href="/admin/topics/details/@item.TopicId?returnUrl=/admin/searches/signer?signer=@ViewBag.Title"><i class="fa fa-file"></i> @item.Name</a></div>
+                            <i class="text-muted text-sm"><i class="fa fa-calendar"></i>  @item.CreatedDate</i>
+                        </td>
+                        <td>
+                            @foreach (var author in item.AuthorTopics)
+                            {
+                                <a href="/admin/authors/details/@author.AuthorId" data-toggle="tooltip" data-placement="top" title="@author.Author.Name">
+                                    <img src="~/img/profile/@author.Author.Avatar" class="img-circle img-bordered-sm" width="40" height="40" />
+                                </a>
+                            }
+                        </td>
+                        <td>
+                            <a href="/admin/categories/details/@item.CategoryId?returnUrl=/admin/searches/signer?signer=@ViewBag.Title">@item.Category?.Name</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+
+        @{
+            var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+            var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+        }
+
+
+        <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)" class="btn btn-secondary btn-sm @prevDisabled shadow">
+            <i class="fa fa-angle-double-left"></i> Trang trước
+        </a>
+        <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)" class="btn btn-secondary btn-sm float-right @nextDisabled shadow">
+            Trang sau <i class="fa fa-angle-double-right"></i>
+        </a>
+
+    </div>
+
+</div>
