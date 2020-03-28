@@ -38,7 +38,6 @@ namespace ApplicationCore.Entities
         public DateTime CreatedDate { get; set; }
         [Display(Name = "Ngày sửa đổi")]
         public DateTime ModifiedDate { get; set; }
-
         public int Status { get; set; }
 
         public virtual Department Department { get; set; }

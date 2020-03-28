@@ -7,12 +7,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ApplicationCore.Entities;
 using Infrastructure.Data;
-using ApplicationCore.Helper;
-using Microsoft.AspNetCore.Authorization;
 
 namespace WebUI.Areas.Admin.Controllers
 {
-    [Area("Admin"), Authorize]
+    [Area("Admin")]
     public class WarehousesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -22,11 +20,14 @@ namespace WebUI.Areas.Admin.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(int? pageIndex)
+        // GET: Admin/Warehouses
+        public async Task<IActionResult> Index()
         {
-            return View(await PaginatedList<Warehouse>.CreateAsync(_context.Warehouses, pageIndex ?? 1, 10));
+            var applicationDbContext = _context.Warehouses.Include(w => w.Category);
+            return View(await applicationDbContext.ToListAsync());
         }
 
+        // GET: Admin/Warehouses/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -35,6 +36,7 @@ namespace WebUI.Areas.Admin.Controllers
             }
 
             var warehouse = await _context.Warehouses
+                .Include(w => w.Category)
                 .FirstOrDefaultAsync(m => m.WarehouseId == id);
             if (warehouse == null)
             {
@@ -43,14 +45,20 @@ namespace WebUI.Areas.Admin.Controllers
 
             return View(warehouse);
         }
-        [Authorize(Roles = "manager")]
+
+        // GET: Admin/Warehouses/Create
         public IActionResult Create()
         {
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryId");
             return View();
         }
+
+        // POST: Admin/Warehouses/Create
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("WarehouseId,Name,Symbol")] Warehouse warehouse)
+        public async Task<IActionResult> Create([Bind("WarehouseId,Name,Symbol,WarehouseType,Description,CategoryId")] Warehouse warehouse)
         {
             if (ModelState.IsValid)
             {
@@ -58,10 +66,11 @@ namespace WebUI.Areas.Admin.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryId", warehouse.CategoryId);
             return View(warehouse);
         }
 
-        [Authorize(Roles = "manager")]
+        // GET: Admin/Warehouses/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -74,13 +83,16 @@ namespace WebUI.Areas.Admin.Controllers
             {
                 return NotFound();
             }
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryId", warehouse.CategoryId);
             return View(warehouse);
         }
 
-        [Authorize(Roles = "manager")]
+        // POST: Admin/Warehouses/Edit/5
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("WarehouseId,Name,Symbol")] Warehouse warehouse)
+        public async Task<IActionResult> Edit(int id, [Bind("WarehouseId,Name,Symbol,WarehouseType,Description,CategoryId")] Warehouse warehouse)
         {
             if (id != warehouse.WarehouseId)
             {
@@ -107,11 +119,30 @@ namespace WebUI.Areas.Admin.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryId", warehouse.CategoryId);
             return View(warehouse);
         }
 
+        // GET: Admin/Warehouses/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-        [Authorize(Roles = "manager")]
+            var warehouse = await _context.Warehouses
+                .Include(w => w.Category)
+                .FirstOrDefaultAsync(m => m.WarehouseId == id);
+            if (warehouse == null)
+            {
+                return NotFound();
+            }
+
+            return View(warehouse);
+        }
+
+        // POST: Admin/Warehouses/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

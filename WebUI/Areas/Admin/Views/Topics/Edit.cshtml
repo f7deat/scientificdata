@@ -20,7 +20,6 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="TopicId" />
             <input type="hidden" asp-for="CreatedDate" />
-            <input type="hidden" asp-for="Attachments" />
             <div class="row">
                 <div class="col-md-8">
                     <div class="form-group">
@@ -71,7 +70,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
                             </div>
-                            <input name="EffectiveDate" id="EffectiveDate" class="form-control" type="date">
+                            <input name="EffectiveDate" id="EffectiveDate" class="form-control" type="date" value="@Model.EffectiveDate?.ToString("yyyy-MM-dd")">
                         </div>
                         <span asp-validation-for="EffectiveDate" class="text-danger"></span>
                     </div>
@@ -92,14 +91,9 @@
                         <span asp-validation-for="DepartmentId" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label class="control-label">Loại văn bản</label>
-                        <select asp-for="TopicType" class="form-control">
-                            @foreach (var value in ApplicationCore.Helper.EnumHelper<ApplicationCore.Entities.TopicType>.GetValues(ApplicationCore.Entities.TopicType.Posts))
-                            {
-                                var description = ApplicationCore.Helper.EnumHelper<ApplicationCore.Entities.TopicType>.GetDisplayValue(value);
-                                <option value="@value">@Html.DisplayFor(e => description)</option>
-                            }
-                        </select>
+                        <label asp-for="TopicTypeId" class="control-label"></label>
+                        <select asp-for="TopicTypeId" class="form-control" asp-items="ViewBag.TopicTypes"></select>
+                        <span asp-validation-for="TopicTypeId" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="Signer" class="control-label"></label>
@@ -130,16 +124,30 @@
 
                     <div class="form-group">
                         <label>Tệp tin đính kèm</label><br />
-                        @if (Model.Attachments != null && Model.Attachments?.Length > 7)
-                        {
-                            foreach (var item in Model.Attachments?.Split(","))
-                            {
-                                <div class="py-2" id="@item?.Substring(0,7)">
-                                    <i class="fa fa-file"></i> @item
-                                    <a href="#" class="text-danger" onclick="RemoveFile('@item')"><i class="fa fa-times"></i></a>
-                                </div>
-                            }
-                        }
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Tên file</th>
+                                    <th>Thư mục</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Attachments)
+                                {
+                                    <tr id="attachment-@item.AttachmentId">
+                                        <td>@item.Name</td>
+                                        <td>@item.Path</td>
+                                        <td class="text-right py-0 align-middle">
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="~/files/@item.Path/@item.Name" target="_blank" class="btn btn-info"><i class="fas fa-eye"></i></a>
+                                                <button type="button" class="btn btn-danger" onclick="deleteFile('@item.Name', '@item.Path', '@item.AttachmentId')"><i class="fas fa-trash"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
                         <div class="input-group">
                             <div class="custom-file">
                                 <input type="file" class="custom-file-input" id="attachmentFiles" name="attachmentFiles" multiple="multiple">
@@ -213,12 +221,10 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    <script src="~/js/bootbox.js"></script>
     <script src="~/lib/inputmask/min/jquery.inputmask.bundle.min.js"></script>
     <script src="~/lib/bs-custom-file-input/bs-custom-file-input.min.js"></script>
     <script src="~/lib/summernote/summernote-bs4.js"></script>
     <script src="~/lib/select2/js/select2.full.min.js"></script>
-    <script src="~/lib/toastr/toastr.min.js"></script>
     <script src="~/js/topic.js"></script>
     <script>
         $(function () {
@@ -235,30 +241,46 @@
             bsCustomFileInput.init();
         });
 
-        function RemoveFile(fileName) {
-            let strFileName = '#' + fileName.substring(0, 7);
-            bootbox.confirm("Xác nhận xóa", function (result) {
-                if (result) {
-                    $.ajax({
+        function deleteFile(fileName, folder, attachmentId) {
+            if (fileName === '') {
+                return;
+            }
+            bootbox.confirm({
+                message: "Bạn có chắc chắn muốn xóa tệp tin: " + fileName + "?",
+                buttons: {
+                    confirm: {
+                        label: 'Xác nhận',
+                        className: 'btn-danger'
+                    },
+                    cancel: {
+                        label: 'No',
+                        className: 'btn-secondary'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
                         url: '/admin/topics/RemoveFile',
                         type: 'POST',
                         dataType: 'html',
-                        data: {
-                            file: fileName,
-                            id: @Model.TopicId,
-                        }
+                            data: {
+                                fileName: fileName,
+                                folder: folder,
+                                attachmentId: attachmentId
+                            }
                     }).done(function (response) {
                         if (response) {
-                            $(strFileName).remove();
-                            $('#Attachments').val($('#Attachments').val().replace(fileName, ''));
+                            $('#attachment-' + attachmentId).remove();
                             toastr["success"]("Xóa file thành công!");
                         }
                         else {
                             toastr["error"]("Xóa file thất bại!");
                         }
                     });
+                    }
                 }
             });
-        };
+        }
+
     </script>
 }

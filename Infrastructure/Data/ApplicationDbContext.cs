@@ -27,6 +27,8 @@ namespace Infrastructure.Data
         public DbSet<Topic> Topics { get; set; }
         public DbSet<Log> Logs { get; set; }
         public DbSet<Warehouse> Warehouses { get; set; }
+        public DbSet<Attachment> Attachments { get; set; }
+        public DbSet<TopicType> TopicTypes { get; set; }
 
     }
 }

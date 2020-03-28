@@ -1,5 +1,6 @@
 ﻿using ApplicationCore.Entities;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace WebUI.Areas.Admin.Models
@@ -29,14 +30,14 @@ namespace WebUI.Areas.Admin.Models
         [Display(Name = "Số hiệu")]
         public string Number { get; set; }
         [StringLength(1000)]
-        public string Attachments { get; set; }
+        public ICollection<Attachment> Attachments { get; set; }
         [Display(Name = "Từ khóa")]
         [StringLength(2000)]
         public string Tags { get; set; }
         [Display(Name = "Đơn vị")]
         public int? DepartmentId { get; set; }
         [Display(Name = "Loại văn bản")]
-        public TopicType? TopicType { get; set; }
+        public int? TopicTypeId { get; set; }
         [Display(Name = "Ngày hiệu lực")]
         public DateTime? EffectiveDate { get; set; }
         [Display(Name = "Người ký")]

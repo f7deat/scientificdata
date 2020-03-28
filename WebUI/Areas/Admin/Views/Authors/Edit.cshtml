@@ -15,7 +15,7 @@
         <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="AuthorId" />
-            <input type="hidden" asp-for="Avatar" />
+            <input type="hidden" asp-for="Avatar" id="avatar-old"/>
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-group">
@@ -79,7 +79,13 @@
                                 }
                                 else
                                 {
-                                    <img src="~/img/profile/@Model.Avatar" class="img-fluid" id="previewImage" width="150" height="150" />
+                                    <div style="position: relative">
+                                        @if (Model.Avatar != "default.jpg")
+                                        {
+                                            <button type="button" class="btn btn-danger btn-sm" style="position: absolute; z-index: 100" onclick="removeAvatar()" id="remove-avatar"><i class="fas fa-trash"></i></button>
+                                        }
+                                        <img src="~/img/profile/@Model.Avatar" class="img-fluid" id="previewImage" width="150" height="150" />
+                                    </div>
                                 }
                             </div>
                             <div class="col-md-10">
@@ -131,6 +137,7 @@
 
                 reader.onload = function (e) {
                     $('#previewImage').attr('src', e.target.result);
+                    $('#remove-avatar').addClass('d-none');
                 }
 
                 reader.readAsDataURL(input.files[0]);
@@ -140,6 +147,30 @@
         $("#AvatarFile").change(function () {
             readURL(this);
         });
+
+        // remove avatar
+        function removeAvatar() {
+        bootbox.confirm("Xác nhận xóa", function (result) {
+                if (result) {
+                    $.ajax({
+                        url: '/admin/authors/RemoveAvatar/@Model.AuthorId',
+                        type: 'POST',
+                        dataType: 'html',
+                        data: {}
+                    }).done(function (response) {
+                        if (response) {
+                            $('#previewImage').attr('src', '/img/profile/default.jpg');
+                            $('#remove-avatar').addClass('d-none');
+                            $('#avatar-old').val('default.jpg');
+                            toastr["success"]("Xóa avatar thành công!");
+                        }
+                        else {
+                            toastr["error"]("Xóa avatar thất bại!");
+                        }
+                    });
+                }
+            });
+        }
 
     </script>
 }

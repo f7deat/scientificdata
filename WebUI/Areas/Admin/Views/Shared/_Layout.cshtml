@@ -12,10 +12,10 @@
 
     <!-- Font Awesome -->
     <link href="~/lib/fontawesome-free/css/all.min.css" rel="stylesheet" />
+    <link href="~/lib/datatables-bs4/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
     <!-- overlayScrollbars -->
     <link href="~/css/adminlte.min.css" rel="stylesheet" />
     <link href="~/css/site.css" rel="stylesheet" />
-    <!-- Google Font: Source Sans Pro -->
 </head>
 <body class="hold-transition sidebar-mini">
     <!-- Site wrapper -->
@@ -70,11 +70,7 @@
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
             <a href="/admin/dashboards" class="brand-link">
-                <img src="~/media/AdminLTELogo.png"
-                     alt="AdminLTE Logo"
-                     class="brand-image img-circle elevation-3"
-                     style="opacity: .8">
-                Quản trị
+                <span class="ml-3"><i class="fab fa-react"></i> Quản trị</span>
             </a>
 
             <!-- Sidebar -->
@@ -84,14 +80,6 @@
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <li class="nav-item">
-                            <a href="/admin/searches" class="nav-link">
-                                <i class="nav-icon fas fa-search"></i>
-                                <p>
-                                    Tra cứu
-                                </p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a href="/admin" class="nav-link">
                                 <i class="nav-icon fas fa-tachometer-alt"></i>
                                 <p>
@@ -100,10 +88,26 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="/admin/searches" class="nav-link">
+                                <i class="nav-icon fas fa-search"></i>
+                                <p>
+                                    Tra cứu
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="/admin/categories" class="nav-link">
                                 <i class="nav-icon fas fa-th"></i>
                                 <p>
                                     Lĩnh vực
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/admin/topictypes" class="nav-link">
+                                <i class="nav-icon fas fa-th"></i>
+                                <p>
+                                    Loại văn bản
                                 </p>
                             </a>
                         </li>
@@ -120,6 +124,14 @@
                                 <i class="nav-icon fas fa-book"></i>
                                 <p>
                                     Tài liệu
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/admin/warehouses" class="nav-link">
+                                <i class="nav-icon fas fa-book"></i>
+                                <p>
+                                    Tuyển tập
                                 </p>
                             </a>
                         </li>
@@ -151,6 +163,14 @@
                                 <i class="nav-icon far fa-object-group"></i>
                                 <p>
                                     Đơn vị
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/admin/filemanagers" class="nav-link">
+                                <i class="nav-icon far fa-file-alt"></i>
+                                <p>
+                                    Quản lý file
                                 </p>
                             </a>
                         </li>
@@ -256,8 +276,35 @@
     <script src="~/lib/jquery/jquery.js"></script>
     <!-- Bootstrap 4 -->
     <script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/js/bootbox.all.min.js"></script>
+    <script src="~/lib/toastr/toastr.min.js"></script>
     <!-- AdminLTE App -->
     <script src="~/js/adminlte.min.js"></script>
+    <script>
+        $(function () {
+            $(".dataTable").DataTable({
+                "language": {
+                    "sProcessing": "Đang xử lý...",
+                    "sLengthMenu": "Xem _MENU_ mục",
+                    "sZeroRecords": "Không tìm thấy dòng nào phù hợp",
+                    "sInfo": "Đang xem _START_ đến _END_ trong tổng số _TOTAL_ mục",
+                    "sInfoEmpty": "Đang xem 0 đến 0 trong tổng số 0 mục",
+                    "sInfoFiltered": "(được lọc từ _MAX_ mục)",
+                    "sInfoPostFix": "",
+                    "sSearch": "Tìm:",
+                    "sUrl": "",
+                    "oPaginate": {
+                        "sFirst": "Đầu",
+                        "sPrevious": "Trước",
+                        "sNext": "Tiếp",
+                        "sLast": "Cuối"
+                    }
+                }
+            });
+        });
+    </script>
     @RenderSection("Scripts", required: false)
 </body>
 </html>

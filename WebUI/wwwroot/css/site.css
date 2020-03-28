@@ -27,3 +27,6 @@ a:hover {
 .users-list > li img {
     height: 128px;
 }
+.note-editor {
+    box-shadow: none
+}

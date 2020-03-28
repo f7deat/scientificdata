@@ -7,6 +7,7 @@
 
 <link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
 <link href="~/lib/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" />
+<link href="~/lib/daterangepicker/daterangepicker.css" rel="stylesheet" />
 <div class="card">
     <div class="card-header">
         <h3 class="card-title"><i class="fab fa-react"></i> @ViewData["Title"]</h3>
@@ -20,7 +21,7 @@
                 <a href="/admin/topics" class="btn btn-secondary"><i class="fa fa-redo"></i> Hủy</a>
             </form>
             <a asp-action="Create" class="btn btn-primary"><i class="fa fa-plus"></i> Tạo mới</a>
-            @*<button class="btn btn-success" type="button" onclick="exportTopic()"><i class="fa fa-file-excel"></i> Export</button>*@
+            <button class="btn btn-success" id="export"><i class="fa fa-file-excel"></i> Xuất Excel</button>
         </div>
         <table class="table table-bordered mb-3">
             <thead>
@@ -160,7 +161,8 @@
 
 @section scripts {
     <script src="~/lib/select2/js/select2.full.min.js"></script>
-    <script src="~/js/export.js"></script>
+    <script src="~/lib/daterangepicker/moment.min.js"></script>
+    <script src="~/lib/daterangepicker/daterangepicker.js"></script>
     <script>
         $('#deleteModal').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget)
@@ -174,6 +176,26 @@
         //Initialize Select2 Elements
         $('#AuthorIds').select2({
             theme: 'bootstrap4'
-        })
+        });
+
+        //Date range as a button
+    $('#export').daterangepicker(
+      {
+        ranges   : {
+          'Hôm nay'       : [moment(), moment()],
+          'Hôm qua'   : [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+          '7 ngày gần đây' : [moment().subtract(6, 'days'), moment()],
+          '30 ngày gần đây': [moment().subtract(29, 'days'), moment()],
+          'Tháng này'  : [moment().startOf('month'), moment().endOf('month')],
+          'Tháng trước'  : [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+        },
+        startDate: moment().subtract(29, 'days'),
+        endDate  : moment()
+      },
+        function (start, end) {
+            console.log("/admin/tools/exporttopic?startDate=" + start.format('DD-MM-YYYY') + "&endDate=" + end.format('DD-MM-YYYY'))
+            window.location.href = "/admin/tools/exporttopic?startDate=" + start.format('MM-DD-YYYY') + "&endDate=" + end.format('MM-DD-YYYY');
+      }
+    )
     </script>
 }

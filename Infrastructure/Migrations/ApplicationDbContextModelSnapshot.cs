@@ -19,6 +19,30 @@ namespace Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+            modelBuilder.Entity("ApplicationCore.Entities.Attachment", b =>
+                {
+                    b.Property<Guid>("AttachmentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("Path")
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
+
+                    b.Property<int?>("TopicId")
+                        .HasColumnType("int");
+
+                    b.HasKey("AttachmentId");
+
+                    b.HasIndex("TopicId");
+
+                    b.ToTable("Attachments");
+                });
+
             modelBuilder.Entity("ApplicationCore.Entities.Author", b =>
                 {
                     b.Property<int>("AuthorId")
@@ -182,14 +206,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("AttachmentType")
-                        .HasColumnType("nvarchar(200)")
-                        .HasMaxLength(200);
-
-                    b.Property<string>("Attachments")
-                        .HasColumnType("nvarchar(1000)")
-                        .HasMaxLength(1000);
-
                     b.Property<int?>("CategoryId")
                         .HasColumnType("int");
 
@@ -245,7 +261,7 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(2000)")
                         .HasMaxLength(2000);
 
-                    b.Property<int?>("TopicType")
+                    b.Property<int?>("TopicTypeId")
                         .HasColumnType("int");
 
                     b.Property<string>("Url")
@@ -265,9 +281,39 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("DepartmentId");
 
+                    b.HasIndex("TopicTypeId");
+
                     b.HasIndex("WarehouseId");
 
                     b.ToTable("Topics");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Entities.TopicType", b =>
+                {
+                    b.Property<int>("TopicTypeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(500)")
+                        .HasMaxLength(500);
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<bool?>("Status")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("TopicTypeId1")
+                        .HasColumnType("int");
+
+                    b.HasKey("TopicTypeId");
+
+                    b.HasIndex("TopicTypeId1");
+
+                    b.ToTable("TopicTypes");
                 });
 
             modelBuilder.Entity("ApplicationCore.Entities.Warehouse", b =>
@@ -277,13 +323,29 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(500)")
+                        .HasMaxLength(500);
+
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(500)")
+                        .HasMaxLength(500);
 
                     b.Property<string>("Symbol")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(500)")
+                        .HasMaxLength(500);
+
+                    b.Property<int?>("TopicTypeId")
+                        .HasColumnType("int");
 
                     b.HasKey("WarehouseId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("TopicTypeId");
 
                     b.ToTable("Warehouses");
                 });
@@ -488,6 +550,13 @@ namespace Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("ApplicationCore.Entities.Attachment", b =>
+                {
+                    b.HasOne("ApplicationCore.Entities.Topic", "Topic")
+                        .WithMany("Attachments")
+                        .HasForeignKey("TopicId");
+                });
+
             modelBuilder.Entity("ApplicationCore.Entities.Author", b =>
                 {
                     b.HasOne("ApplicationCore.Entities.Department", "Department")
@@ -520,9 +589,31 @@ namespace Infrastructure.Migrations
                         .WithMany("Topics")
                         .HasForeignKey("DepartmentId");
 
+                    b.HasOne("ApplicationCore.Entities.TopicType", "TopicType")
+                        .WithMany("Topics")
+                        .HasForeignKey("TopicTypeId");
+
                     b.HasOne("ApplicationCore.Entities.Warehouse", "Warehouse")
                         .WithMany("Topics")
                         .HasForeignKey("WarehouseId");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Entities.TopicType", b =>
+                {
+                    b.HasOne("ApplicationCore.Entities.TopicType", null)
+                        .WithMany("TopicTypes")
+                        .HasForeignKey("TopicTypeId1");
+                });
+
+            modelBuilder.Entity("ApplicationCore.Entities.Warehouse", b =>
+                {
+                    b.HasOne("ApplicationCore.Entities.Category", "Category")
+                        .WithMany("Warehouses")
+                        .HasForeignKey("CategoryId");
+
+                    b.HasOne("ApplicationCore.Entities.TopicType", "TopicType")
+                        .WithMany()
+                        .HasForeignKey("TopicTypeId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

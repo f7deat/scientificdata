@@ -190,7 +190,7 @@ namespace WebUI.Areas.Admin.Controllers
                 var author = await _context.Authors.FindAsync(id);
                 if (!string.IsNullOrEmpty(author.Avatar))
                 {
-                    var path = Path.Combine(_webHostEnvironment.WebRootPath, "img/profile", author?.Avatar);
+                    var path = Path.Combine(_webHostEnvironment.WebRootPath, "img/profile", author.Avatar);
                     if (System.IO.File.Exists(path))
                     {
                         System.IO.File.Delete(path);
@@ -202,6 +202,28 @@ namespace WebUI.Areas.Admin.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> RemoveAvatarAsync(int? id)
+        {
+            if (id == null)
+            {
+                return Json(false);
+            }
+            var author = await _context.Authors.FindAsync(id);
+            if (!string.IsNullOrEmpty(author.Avatar))
+            {
+                var path = Path.Combine(_webHostEnvironment.WebRootPath, "img/profile", author.Avatar);
+                if (System.IO.File.Exists(path))
+                {
+                    System.IO.File.Delete(path);
+                }
+            }
+            author.Avatar = "default.jpg";
+            _context.Authors.Update(author);
+            await _context.SaveChangesAsync();
+            return Json(true);
         }
 
         private bool AuthorExists(int id)

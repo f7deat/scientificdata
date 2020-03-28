@@ -1,29 +1,27 @@
-﻿@model ApplicationCore.Helper.PaginatedList<ApplicationCore.Entities.Warehouse>
+﻿@model IEnumerable<ApplicationCore.Entities.Warehouse>
 
 @{
-    ViewData["Title"] = "Tuyển tập, số báo";
+    ViewData["Title"] = "Tuyển tập";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
+<div class="alert alert-info mb-2">Chuyên mục đang code</div>
+
 <div class="card">
     <div class="card-header">
+        <a asp-action="Create" class="btn btn-outline-danger btn-sm float-right"><i class="fa fa-plus"></i> Tạo mới</a>
         <h3 class="card-title"><i class="fab fa-react"></i> @ViewData["Title"]</h3>
     </div>
     <!-- /.card-header -->
     <div class="card-body">
-        <div class="clearfix mb-3">
-            <form class="form-inline float-right" action="/admin/warehouses/index" method="get">
-                <input class="form-control mr-2" name="searchTerm" placeholder="Nhập tên tài liệu..." value="@ViewBag.SearchTerm" />
-                <button class="btn btn-primary mr-2" type="submit"><i class="fa fa-search"></i> Tìm kiếm</button>
-                <a href="/admin/warehouses" class="btn btn-secondary"><i class="fa fa-redo"></i> Hủy</a>
-            </form>
-            <a asp-action="Create" class="btn btn-primary"><i class="fa fa-plus"></i> Tạo mới</a>
-        </div>
-        <table class="table table-bordered mb-3">
+        <table class="table table-bordered mb-3 dataTable">
             <thead>
                 <tr>
                     <th>
-                        Tên
+                        @Html.DisplayNameFor(model => model.Name)
+                    </th>
+                    <th>
+                        Danh mục
                     </th>
                     <th></th>
                 </tr>
@@ -36,8 +34,11 @@
                             @Html.DisplayFor(modelItem => item.Name)
                         </td>
                         <td>
-                            <a asp-action="Edit" asp-route-id="@item.WarehouseId">Edit</a> |
-                            <a asp-action="Details" asp-route-id="@item.WarehouseId">Details</a> |
+                            @Html.DisplayFor(modelItem => item.Category.Name)
+                        </td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@item.WarehouseId" class="btn btn-info btn-sm"><i class="fa fa-folder"></i> Chi tiết</a> 
+                            <a asp-action="Edit" asp-route-id="@item.WarehouseId" class="btn btn-primary btn-sm"><i class="fa fa-pen"></i> Sửa</a>
                             <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-whatever="@item.WarehouseId">
                                 <i class="fa fa-trash"></i> Xóa
                             </button>
@@ -46,28 +47,9 @@
                 }
             </tbody>
         </table>
-
-
-
-        @{
-            var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
-            var nextDisabled = !Model.HasNextPage ? "disabled" : "";
-        }
-
-
-        <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)"
-           asp-route-searchTerm="@ViewBag.SearchTerm" class="btn btn-secondary btn-sm @prevDisabled shadow">
-            <i class="fa fa-angle-double-left"></i> Trang trước
-        </a>
-        <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)"
-           asp-route-searchTerm="@ViewBag.SearchTerm" class="btn btn-secondary btn-sm float-right @nextDisabled shadow">
-            Trang sau <i class="fa fa-angle-double-right"></i>
-        </a>
-
     </div>
-    <!-- /.card-body -->
-
 </div>
+
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -90,24 +72,15 @@
     </div>
 </div>
 
-@*<partial name="_Topics" />*@
-
 @section scripts {
-    <script src="~/lib/select2/js/select2.full.min.js"></script>
-    <script src="~/js/export.js"></script>
+    <script src="~/lib/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/lib/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
     <script>
         $('#deleteModal').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget)
             var recipient = button.data('whatever')
             var modal = $(this)
             modal.find('.modal-body input').val(recipient)
-        })
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip()
-        })
-        //Initialize Select2 Elements
-        $('#AuthorIds').select2({
-            theme: 'bootstrap4'
-        })
+        });
     </script>
 }

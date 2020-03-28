@@ -19,5 +19,6 @@ namespace ApplicationCore.Entities
         public int? CategoryType { get; set; }
 
         public virtual ICollection<Topic> Topics { get; set; }
+        public virtual ICollection<Warehouse> Warehouses { get; set; }
     }
 }

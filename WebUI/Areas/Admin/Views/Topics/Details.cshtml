@@ -91,18 +91,15 @@
                 </div>
                 <label>Loại văn bản</label>
                 <div class="form-group">
-                    @{
-                        var description = ApplicationCore.Helper.EnumHelper<ApplicationCore.Entities.TopicType>.GetDisplayValue(Model.TopicType.Value);
-                        <a href="/admin/searches/topictypes?topictype=@Model.TopicType.Value">@Html.DisplayFor(e => description)</a>
-                    }
+                        <a href="/admin/searches/topictypes?topictype=@Model.TopicType?.TopicTypeId">@Model.TopicType?.Name</a>
                 </div>
                 <label><i class="fa fa-file-archive"></i> Tệp tin đính kèm</label>
-                @if (!string.IsNullOrEmpty(Model.Attachments))
+                @if (Model.Attachments.Count > 0)
                 {
                     <ul>
-                        @foreach (var item in Model?.Attachments.Split(",", StringSplitOptions.RemoveEmptyEntries))
+                        @foreach (var item in Model.Attachments)
                         {
-                            <li><a href="~/files/@item">@item</a></li>
+                            <li><a href="/files/@item.Path/@item.Name">@item.Name</a></li>
                         }
                     </ul>
                 }

@@ -47,10 +47,10 @@
                             }
                         </td>
                         <td>
-                            @{
+                            @*@{
                                 var description = ApplicationCore.Helper.EnumHelper<ApplicationCore.Entities.TopicType>.GetDisplayValue(item.TopicType.Value);
                                 <a href="/admin/searches/topictypes?topictype=@item.TopicType.Value">@Html.DisplayFor(e => description)</a>
-                            }
+                            }*@
                         </td>
                     </tr>
                 }

@@ -37,12 +37,12 @@ namespace WebUI.Areas.Admin.Controllers
             ViewBag.UserCount = await _userManager.Users.CountAsync();
 
             // Count by TopicType
-            ViewBag.Circulars = await _context.Topics.CountAsync(x => x.TopicType == TopicType.Circulars);
-            ViewBag.Decree = await _context.Topics.CountAsync(x => x.TopicType == TopicType.Decree);
-            ViewBag.Posts = await _context.Topics.CountAsync(x => x.TopicType == TopicType.Posts);
-            ViewBag.Resolution = await _context.Topics.CountAsync(x => x.TopicType == TopicType.Resolution);
-            ViewBag.Scheme = await _context.Topics.CountAsync(x => x.TopicType == TopicType.Scheme);
-            ViewBag.Topic = await _context.Topics.CountAsync(x => x.TopicType == TopicType.Topic);
+            //ViewBag.Circulars = await _context.Topics.CountAsync(x => x.TopicType == TopicType.Circulars);
+            //ViewBag.Decree = await _context.Topics.CountAsync(x => x.TopicType == TopicType.Decree);
+            //ViewBag.Posts = await _context.Topics.CountAsync(x => x.TopicType == TopicType.Posts);
+            //ViewBag.Resolution = await _context.Topics.CountAsync(x => x.TopicType == TopicType.Resolution);
+            //ViewBag.Scheme = await _context.Topics.CountAsync(x => x.TopicType == TopicType.Scheme);
+            //ViewBag.Topic = await _context.Topics.CountAsync(x => x.TopicType == TopicType.Topic);
 
             var dataMonth = "[";
             foreach (var item in _context.Topics.GroupBy(x=>x.CreatedDate.Month).Select(x=> x.Count()))

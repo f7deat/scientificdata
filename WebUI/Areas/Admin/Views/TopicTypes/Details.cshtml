@@ -1,0 +1,51 @@
+﻿@model IEnumerable<ApplicationCore.Entities.Topic>
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card-header">
+        <a asp-action="Create" class="btn btn-outline-danger btn-sm float-right"><i class="fa fa-plus"></i> Tạo mới</a>
+        <h3 class="card-title"><i class="fab fa-react"></i> @ViewData["Title"]</h3>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered mb-3 dataTable">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Name)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.ModifiedDate)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="">
+                                <a href="/admin/topics/details/@item.TopicId" class="font-weight-bold">@Html.DisplayFor(modelItem => item.Name)</a>
+                            </div>
+                            <div class="text-muted">
+                                @item.Description
+                            </div>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ModifiedDate)
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.TopicTypeId" class="btn btn-primary btn-sm"><i class="fa fa-pen"></i> Sửa</a>
+                            <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-whatever="@item.TopicTypeId">
+                                <i class="fa fa-trash"></i> Xóa
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

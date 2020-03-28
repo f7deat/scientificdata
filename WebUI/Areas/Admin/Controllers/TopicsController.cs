@@ -60,7 +60,7 @@ namespace WebUI.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var topic = await _context.Topics
+            var topic = await _context.Topics.Include(x=>x.Attachments).Include(x=>x.TopicType)
                 .FirstOrDefaultAsync(m => m.TopicId == id);
             if (topic == null)
             {
@@ -78,6 +78,7 @@ namespace WebUI.Areas.Admin.Controllers
             ViewData["Authors"] = new SelectList(_context.Authors, "AuthorId", "Name");
             ViewData["Categories"] = new SelectList(_context.Categories, "CategoryId", "Name");
             ViewData["Departments"] = new SelectList(_context.Departments, "DepartmentId", "Name");
+            ViewData["TopicTypes"] = new SelectList(_context.TopicTypes, "TopicTypeId", "Name");
             return View();
         }
 
@@ -106,7 +107,7 @@ namespace WebUI.Areas.Admin.Controllers
                             Number = topicViewModel.Number,
                             Tags = topicViewModel.Tags,
                             DepartmentId = topicViewModel.DepartmentId,
-                            TopicType = topicViewModel.TopicType,
+                            TopicTypeId = topicViewModel.TopicTypeId,
                             EffectiveDate = topicViewModel.EffectiveDate,
                             Signer = topicViewModel.Signer,
                             Source = topicViewModel.Source,
@@ -115,32 +116,35 @@ namespace WebUI.Areas.Admin.Controllers
                             UserId = User.Identity.Name
                         };
 
+                        _context.Topics.Add(topic);
+                        await _context.SaveChangesAsync();
+
                         if (attachmentFiles?.Count() > 0)
                         {
+                            string folder = string.Format("{0}{1}", DateTime.Now.Year, DateTime.Now.ToString("MM"));
+
+                            string path = Path.Combine(_webHostEnvironment.WebRootPath, "files", folder);
+
+                            if (!Directory.Exists(path))
+                            {
+                                Directory.CreateDirectory(path);
+                            }
+
                             foreach (var item in attachmentFiles)
                             {
-                                var extension = Path.GetExtension(item.FileName).ToLower();
-                                // Tên file. Example: xhoaihw-2020-02-08.pdf
-                                var fileName = string.Format($"{Path.GetRandomFileName()}-{DateTime.Now.Year}-{DateTime.Now.Month}-{DateTime.Now.Day}{extension}");
-                                var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "files", fileName);
+                                var filePath = Path.Combine(path, item.FileName);
 
-                                using (var stream = System.IO.File.Create(filePath))
+                                using var stream = System.IO.File.Create(filePath);
+                                await item.CopyToAsync(stream);
+                                _context.Attachments.Add(new Attachment
                                 {
-                                    await item.CopyToAsync(stream);
-                                }
-                                if (string.IsNullOrEmpty(topic.Attachments))
-                                {
-                                    topic.Attachments = fileName;
-                                }
-                                else
-                                {
-                                    topic.Attachments = string.Format($"{topic.Attachments},{fileName}");
-                                }
+                                    Name = item.FileName,
+                                    Path = folder,
+                                    TopicId = topic.TopicId
+                                });
                             }
+                            await _context.SaveChangesAsync();
                         }
-
-                        _context.Add(topic);
-                        await _context.SaveChangesAsync();
 
                         if (topicViewModel?.AuthorIds?.Length > 0)
                         {
@@ -169,6 +173,7 @@ namespace WebUI.Areas.Admin.Controllers
             ViewData["Departments"] = new SelectList(_context.Departments, "DepartmentId", "Name");
             ViewData["Authors"] = new SelectList(_context.Authors, "AuthorId", "Name");
             ViewData["Categories"] = new SelectList(_context.Categories, "CategoryId", "Name");
+            ViewData["TopicTypes"] = new SelectList(_context.TopicTypes, "TopicTypeId", "Name");
             return View(topicViewModel);
         }
 
@@ -180,7 +185,7 @@ namespace WebUI.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var topic = await _context.Topics.Include(x => x.AuthorTopics).FirstOrDefaultAsync(x => x.TopicId == id);
+            var topic = await _context.Topics.Include(x => x.AuthorTopics).Include(x=>x.Attachments).FirstOrDefaultAsync(x => x.TopicId == id);
             if (topic == null)
             {
                 return NotFound();
@@ -196,23 +201,24 @@ namespace WebUI.Areas.Admin.Controllers
                 Status = topic.Status,
                 TopicId = topic.TopicId,
                 Url = topic.Url,
-                Attachments = topic.Attachments,
                 UserId = topic.UserId,
                 CategoryId = topic.CategoryId,
                 Number = topic.Number,
                 Tags = topic.Tags,
                 DepartmentId = topic.DepartmentId,
-                TopicType = topic.TopicType,
+                TopicTypeId = topic.TopicTypeId,
                 EffectiveDate = topic.EffectiveDate,
                 Signer = topic.Signer,
                 Source = topic.Source,
                 ISSN = topic.ISSN,
-                Page = topic.Page
+                Page = topic.Page,
+                Attachments = topic.Attachments
             };
 
             ViewData["Departments"] = new SelectList(_context.Departments, "DepartmentId", "Name");
             ViewData["Authors"] = new MultiSelectList(_context.Authors, "AuthorId", "Name", topic.AuthorTopics.Select(x => x.AuthorId));
             ViewData["Categories"] = new SelectList(_context.Categories, "CategoryId", "Name", topic.CategoryId);
+            ViewData["TopicTypes"] = new SelectList(_context.TopicTypes, "TopicTypeId", "Name", topic.TopicTypeId);
             if (!string.IsNullOrEmpty(url))
             {
                 ViewBag.UrlBack = url;
@@ -234,21 +240,6 @@ namespace WebUI.Areas.Admin.Controllers
             {
                 try
                 {
-                    if (!string.IsNullOrEmpty(topicViewModel.Attachments) && topicViewModel.Attachments?.Length > 2)
-                    {
-                        if (topicViewModel.Attachments.Substring(topicViewModel.Attachments.Length - 1).Equals(","))
-                        {
-                            topicViewModel.Attachments = topicViewModel.Attachments[0..^1];
-                        }
-                        if (topicViewModel.Attachments.IndexOf(",") == 0)
-                        {
-                            topicViewModel.Attachments = topicViewModel.Attachments.Substring(1);
-                        }
-                        if (topicViewModel.Attachments.Equals(","))
-                        {
-                            topicViewModel.Attachments = string.Empty;
-                        }
-                    }
                     using var trans = _context.Database.BeginTransaction();
                     try
                     {
@@ -264,10 +255,9 @@ namespace WebUI.Areas.Admin.Controllers
                             UserId = User.Identity.Name,
                             ModifiedDate = DateTime.Now,
                             PublishDate = topicViewModel.PublishDate,
-                            Attachments = topicViewModel.Attachments,
                             CategoryId = topicViewModel.CategoryId,
                             DepartmentId = topicViewModel.DepartmentId,
-                            TopicType = topicViewModel.TopicType,
+                            TopicTypeId = topicViewModel.TopicTypeId,
                             EffectiveDate = topicViewModel.EffectiveDate,
                             Signer = topicViewModel.Signer,
                             Source = topicViewModel.Source,
@@ -279,26 +269,21 @@ namespace WebUI.Areas.Admin.Controllers
 
                         if (attachmentFiles?.Count > 0)
                         {
+                            string folder = string.Format("{0}{1}", DateTime.Now.Year, DateTime.Now.ToString("MM"));
                             foreach (var item in attachmentFiles)
                             {
-                                var extension = Path.GetExtension(item.FileName).ToLower();
-                                // Tên file. Example: xhoaihw-2020-02-08.pdf
-                                var fileName = string.Format($"{Path.GetRandomFileName()}-{DateTime.Now.Year}-{DateTime.Now.Month}-{DateTime.Now.Day}{extension}");
-                                var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "files", fileName);
+                                var filePath = Path.Combine(_webHostEnvironment.WebRootPath, "files\\" + folder, item.FileName);
 
-                                using (var stream = System.IO.File.Create(filePath))
+                                using var stream = System.IO.File.Create(filePath);
+                                await item.CopyToAsync(stream);
+                                _context.Attachments.Add(new Attachment
                                 {
-                                    await item.CopyToAsync(stream);
-                                }
-                                if (string.IsNullOrEmpty(topic.Attachments))
-                                {
-                                    topic.Attachments = fileName;
-                                }
-                                else
-                                {
-                                    topic.Attachments = string.Format($"{topic.Attachments},{fileName}");
-                                }
+                                    Name = item.FileName,
+                                    Path = folder,
+                                    TopicId = topic.TopicId
+                                });
                             }
+                            await _context.SaveChangesAsync();
                         }
 
                         if (topicViewModel.AuthorIds != null)
@@ -314,7 +299,7 @@ namespace WebUI.Areas.Admin.Controllers
                             }
                         }
 
-                        _context.Update(topic);
+                        _context.Topics.Update(topic);
 
                         await _context.SaveChangesAsync();
 
@@ -346,14 +331,13 @@ namespace WebUI.Areas.Admin.Controllers
         [Authorize(Roles = "manager")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var topic = await _context.Topics.FindAsync(id);
+            var topic = await _context.Topics.Include(x=>x.Attachments).FirstOrDefaultAsync(x=>x.TopicId == id);
 
-            if (!string.IsNullOrEmpty(topic.Attachments))
+            if (topic.Attachments.Count > 0)
             {
-                var attatchs = topic.Attachments.Split(",");
-                foreach (var item in attatchs)
+                foreach (var item in topic.Attachments)
                 {
-                    var path = Path.Combine(_webHostEnvironment.WebRootPath, "files", item);
+                    var path = Path.Combine(_webHostEnvironment.WebRootPath, "files", item.Path + "\\" + item.Name);
                     if (System.IO.File.Exists(path))
                     {
                         System.IO.File.Delete(path);
@@ -371,34 +355,20 @@ namespace WebUI.Areas.Admin.Controllers
 
         [HttpPost]
         [Authorize(Roles = "manager")]
-        public JsonResult RemoveFile(string file, int id)
+        public async Task<JsonResult> RemoveFile(string fileName, string folder, Guid attachmentId)
         {
             try
             {
-                if (!string.IsNullOrEmpty(file))
+                if (!string.IsNullOrEmpty(fileName) && !string.IsNullOrEmpty(folder))
                 {
-                    var topic = _context.Topics.Find(id);
-                    if (!string.IsNullOrEmpty(topic.Attachments) && topic != null && topic.Attachments?.Length > 2)
-                    {
-                        topic.Attachments = topic.Attachments.Replace(file, string.Empty);
-                        if (topic.Attachments.Substring(topic.Attachments.Length - 1).Equals(","))
-                        {
-                            topic.Attachments = topic.Attachments[0..^1];
-                        }
-                        if (topic.Attachments.IndexOf(",") == 0)
-                        {
-                            topic.Attachments = topic.Attachments.Substring(1);
-                        }
-                    }
-
-                    var path = Path.Combine(_webHostEnvironment.WebRootPath, "files", file);
+                    var path = Path.Combine(_webHostEnvironment.WebRootPath, "files\\" + folder, fileName);
                     if (System.IO.File.Exists(path))
                     {
                         System.IO.File.Delete(path);
                     }
-
-                    _context.Update(topic);
-                    _context.SaveChanges();
+                    var attachment = _context.Attachments.FirstOrDefault(x => x.AttachmentId == attachmentId);
+                    _context.Attachments.Remove(attachment);
+                    await _context.SaveChangesAsync();
 
                     return Json(true);
                 }
@@ -406,7 +376,7 @@ namespace WebUI.Areas.Admin.Controllers
             }
             catch (Exception ex)
             {
-                _logService.Write(LogType.Exception, ex.Message);
+                await _logService.Write(LogType.Exception, ex.Message);
                 return Json(false);
             }
         }

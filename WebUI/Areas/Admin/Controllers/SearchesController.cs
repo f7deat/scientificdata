@@ -28,7 +28,7 @@ namespace WebUI.Areas.Admin.Controllers
         public async Task<IActionResult> Index(string searchTerm,
             int? department,
             int? category,
-            TopicType? topicType,
+            int? topicType,
             string number,
             int? pageIndex,
             int? year)
@@ -43,16 +43,18 @@ namespace WebUI.Areas.Admin.Controllers
             // Dropdown Data
             ViewBag.Categories = await _context.Categories.ToListAsync();
             ViewBag.Departments = await _context.Departments.Include(x => x.Topics).Take(5).ToListAsync();
+            ViewBag.TopicTypes = await _context.TopicTypes.Include(x => x.Topics).Take(5).ToListAsync();
 
             ViewBag.CategoriesSelect = new SelectList(_context.Categories, "CategoryId", "Name", category);
             ViewBag.DepartmentsSelect = new SelectList(_context.Departments, "DepartmentId", "Name", department);
+            ViewBag.TopicTypesSelect = new SelectList(_context.TopicTypes, "TopicTypeId", "Name", topicType);
 
             ViewBag.Years = new SelectList(_context.Topics.Where(x => x.PublishDate != null).Select(x => x.PublishDate.Value.Year).Distinct(), year);
 
             var topics = _context.Topics.AsQueryable();
             if (!string.IsNullOrEmpty(searchTerm))
             {
-                topics = topics.Where(x => x.Name.Contains(searchTerm));
+                topics = topics.Where(x => x.Name.Contains(searchTerm) || x.Description.Contains(searchTerm) || x.Content.Contains(searchTerm));
             }
             if (department != null)
             {
@@ -68,7 +70,7 @@ namespace WebUI.Areas.Admin.Controllers
             }
             if (topicType!=null)
             {
-                topics = topics.Where(x => x.TopicType == topicType);
+                topics = topics.Where(x => x.TopicTypeId == topicType);
             }
             if (year != null)
             {
