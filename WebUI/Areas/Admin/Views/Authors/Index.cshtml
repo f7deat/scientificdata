@@ -1,74 +1,150 @@
 ﻿@model ApplicationCore.Helper.PaginatedList<ApplicationCore.Entities.Author>
+@using WebUI.Areas.Admin.Models.Enum;
 
 @{
-    ViewData["Title"] = "Tác giả";
+    ViewData["Title"] = "Nhà khoa học";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
 <link href="~/lib/toastr/toastr.css" rel="stylesheet" />
 <div class="card">
     <div class="card-header">
+        <div class="font-weight-bold float-right">
+            Tổng số: @Model.TotalRecord
+        </div>
         <h3 class="card-title">@ViewData["Title"]</h3>
     </div>
     <!-- /.card-header -->
     <div class="card-body">
         <div class="clearfix mb-3">
             <form class="form-inline float-right" action="/admin/authors/index" method="get">
-                <input class="form-control mr-2" name="searchTerm" placeholder="Nhập từ khóa..." />
+                <input type="hidden" value="@ViewBag.ViewStyle" name="ViewStyle" />
+                <input class="form-control mr-2" name="searchTerm" placeholder="Nhập từ khóa..." value="@ViewBag.SearchTerm" />
+                <select class="form-control mr-2" name="state" asp-items="ViewBag.SearchType">
+                </select>
                 <button class="btn btn-primary mr-2" type="submit"><i class="fa fa-search"></i> Tìm kiếm</button>
-                <a href="/admin/authors" class="btn btn-secondary"><i class="fa fa-redo"></i> Hủy</a>
+                <a href="/admin/authors?viewStyle=@ViewBag.ViewStyle" class="btn btn-secondary"><i class="fa fa-redo"></i> Hủy</a>
             </form>
+            <a href="/admin/authors?viewStyle=@ViewStyle.Large&searchTerm=@ViewBag.SearchTerm&pageIndex=@Model.PageIndex" class="btn border @(ViewBag.ViewStyle == ViewStyle.Large ? "disabled" : "")" @(ViewBag.ViewStyle == ViewStyle.Large ? "disabled" : "")><i class="fas fa-th-large"></i></a>
+            <a href="/admin/authors?viewStyle=@ViewStyle.List&searchTerm=@ViewBag.SearchTerm&pageIndex=@Model.PageIndex" class="btn border @(ViewBag.ViewStyle == ViewStyle.List ? "disabled" : "")" @(ViewBag.ViewStyle == ViewStyle.List ? "disabled" : "")><i class="fas fa-th-list"></i></a>
+            <button class="btn border dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-sort-amount-up"></i> Sắp xếp
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a href="/admin/authors?orderby=department&ordertype=@(ViewBag.OrderType == 1 ? 2 : 1)&viewstyle=@ViewBag.ViewStyle" class="dropdown-item @(ViewBag.OrderBy == null ? "text-muted" : "text-dark")"><i class="fas @(ViewBag.OrderType == 1 ? "fa-sort-alpha-up" : "fa-sort-alpha-down")"></i> Đơn vị công tác</a>
+            </div>
+            <a href="/admin/tools/ExportAuthor" class="btn btn-success"><i class="fas fa-file-excel"></i> Xuất Excel</a>
             <a asp-action="Create" class="btn btn-primary"><i class="fa fa-plus"></i> Tạo mới</a>
         </div>
-        <table class="table table-bordered mb-3">
-            <thead>
-                <tr>
-                    <th>
-                        Họ và tên
-                    </th>
-                    <th>
-                        Ngày sinh
-                    </th>
-                    <th>
-                        Giới tính
-                    </th>
-                    <th>
-                        Email
-                    </th>
-                    <th>
-                        Số điện thoại
-                    </th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
+
+        <div class="row align-items-stretch @(ViewBag.ViewStyle == ViewStyle.List ? "d-none" : "d-flex")">
+            @foreach (var item in Model)
+            {
+                <div class="col-12 col-sm-6 col-md-4 align-items-stretch">
+                    <div class="card bg-light" style="min-height: 310px; max-height: 310px;">
+                        <div class="card-header text-muted border-bottom-0">
+                            <a href="/admin/authors?searchTerm=@item.Specialized" class="text-muted">@item.Specialized</a>
+                        </div>
+                        <div class="card-body pt-0">
+                            <div class="row">
+                                <div class="col-7">
+                                    <h2 class="lead">
+                                        @(string.IsNullOrEmpty(item.AcademicRank)? "":item.AcademicRank + ".")@item.Degree
+                                        <b>
+                                            @item.Name
+                                        </b>
+                                    </h2>
+                                    <p class="text-muted text-sm"><b>Đơn vị công tác: </b> <a href="/admin/authors?searchTerm=@item.Deparment" class="text-muted">@item.Deparment</a> </p>
+                                    <ul class="ml-4 mb-0 fa-ul text-muted">
+                                        <li class="small text-truncate"><i class="fas fa-building"></i> Địa chỉ: <span data-toggle="tooltip" data-placement="top" title="@item.Location">@item.Location</span></li>
+                                        <li class="small text-truncate"><i class="fas fa-phone"></i> Điện thoại: <a href="tel:@item.PhoneNumber">@item.PhoneNumber</a></li>
+                                        <li class="small text-truncate"><i class="fas fa-envelope"></i> E-Mail: <a href="mailto:@item.Email">@item.Email</a></li>
+                                    </ul>
+                                </div>
+                                <div class="col-5 text-center">
+                                    <img src="~/img/profile/@item.Avatar" alt="" class="img-circle" style="object-fit:cover" width="128" height="128">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="text-right">
+                                <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-whatever="@item.AuthorId"><i class="fa fa-trash"></i></button>
+                                <a asp-action="Edit" asp-route-id="@item.AuthorId" class="btn btn-info btn-sm"><i class="fa fa-pen"></i></a>
+                                <a asp-action="Details" asp-route-id="@item.AuthorId" class="btn btn-primary btn-sm">
+
+                                    @if (item.Gender != null)
+                                    {
+                                        @Html.Raw(item?.Gender == true ? "<i class=\"fa fa-mars\"></i>" : "<i class=\"fa fa-venus\"></i>")
+                                    }
+                                    else
+                                    {
+                                        <i class="fa fa-user"></i>
+                                    }
+                                    Xem hồ sơ
+                                </a>
+                                <button class="btn btn-sm btn-light border" type="button" id="dropdownMenuButton-table-@item.AuthorId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton-table-@item.AuthorId">
+                                    <a class="dropdown-item" href="/admin/authors/ReOrder?authorId=@item.AuthorId&reOrder=@EReOrder.Up&viewStyle=@ViewBag.ViewStyle"><i class="fas fa-arrow-alt-circle-up"></i> Đẩy Top</a>
+                                    <a class="dropdown-item" href="/admin/authors/ReOrder?authorId=@item.AuthorId&reOrder=@EReOrder.Down&viewStyle=@ViewBag.ViewStyle"><i class="fas fa-arrow-alt-circle-down"></i> Lùi Top</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="@(ViewBag.ViewStyle == ViewStyle.Large ? "d-none" : "")">
+            <table class="table table-bordered table-striped table-hover" style="overflow-x: auto">
+                <thead>
                     <tr>
-                        <td>
-                            <b>@Html.DisplayFor(modelItem => item.Name)</b>
-                        </td>
-                        <td>
-                            @item.DateOfBirth?.ToString("dd/MM/yyyy")
-                        </td>
-                        <td>
-                            @(item?.Gender == true ? "Nam" : "Nữ")
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Email)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.PhoneNumber)
-                        </td>
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@item.AuthorId" class="btn btn-primary btn-sm"><i class="fa fa-pen"></i> Chỉnh sửa</a>
-                            <a asp-action="Details" asp-route-id="@item.AuthorId" class="btn btn-info btn-sm"><i class="fa fa-user"></i> Hồ sơ</a>
-                            <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-whatever="@item.AuthorId"><i class="fa fa-trash"></i> Xóa</button>
-                        </td>
+                        <th>Họ và tên</th>
+                        <th>Ngày sinh</th>
+                        <th>Địa chỉ</th>
+                        <th class="text-truncate">Số điện thoại</th>
+                        <th>Email</th>
+                        <th class="text-truncate">Đơn vị công tác <div class="float-right"><a href="/admin/authors?orderby=department&ordertype=@(ViewBag.OrderType == 1 ? 2 : 1)&viewstyle=@ViewBag.ViewStyle" class="@(ViewBag.OrderBy == null ? "text-muted" : "text-dark")"><i class="fas @(ViewBag.OrderType == 1 ? "fa-sort-alpha-up" : "fa-sort-alpha-down")"></i></a></div></th>
+                        <th>Tác vụ</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-truncate">
+                                @if (item.Gender != null)
+                                {
+                                    @Html.Raw(item?.Gender == true ? "<i class=\"fa fa-mars\"></i>" : "<i class=\"fa fa-venus\"></i>")
+                                }
+                                else
+                                {
+                                    <i class="fa fa-user"></i>
+                                }
+                                @(string.IsNullOrEmpty(item.AcademicRank)? "":item.AcademicRank + ".")@item.Degree <b>@item.Name</b>
+                            </td>
+                            <td class="text-truncate">@item.DateOfBirth?.ToString("dd-MM-yyyy")</td>
+                            <td>@item.Location</td>
+                            <td class="text-truncate">@item.PhoneNumber</td>
+                            <td>@item.Email</td>
+                            <td><a href="/admin/authors?searchTerm=@item.Deparment">@item.Deparment</a></td>
+                            <td class="text-truncate">
+                                <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-whatever="@item.AuthorId"><i class="fa fa-trash"></i></button>
+                                <a asp-action="Edit" asp-route-id="@item.AuthorId" class="btn btn-info btn-sm"><i class="fa fa-pen"></i></a>
+                                <a asp-action="Details" asp-route-id="@item.AuthorId" class="btn btn-primary btn-sm"><i class="fas fa-folder"></i></a>
+                                <button class="btn btn-sm btn-light border" type="button" id="dropdownMenuButton-table-@item.AuthorId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton-table-@item.AuthorId">
+                                    <a class="dropdown-item" href="/admin/authors/ReOrder?authorId=@item.AuthorId&reOrder=@EReOrder.Up&viewStyle=@ViewBag.ViewStyle"><i class="fas fa-arrow-alt-circle-up"></i> Đẩy Top</a>
+                                    <a class="dropdown-item" href="/admin/authors/ReOrder?authorId=@item.AuthorId&reOrder=@EReOrder.Down&viewStyle=@ViewBag.ViewStyle"><i class="fas fa-arrow-alt-circle-down"></i> Lùi Top</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
 
         @{
             var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
@@ -76,10 +152,10 @@
         }
 
 
-        <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)" class="btn btn-secondary btn-sm @prevDisabled shadow">
+        <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)" asp-route-viewStyle="@ViewBag.ViewStyle" asp-route-searchTerm="@ViewBag.SearchTerm" class="btn btn-secondary btn-sm @prevDisabled shadow">
             <i class="fa fa-angle-double-left"></i> Trang trước
         </a>
-        <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)" class="btn btn-secondary btn-sm float-right @nextDisabled shadow">
+        <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)" asp-route-viewStyle="@ViewBag.ViewStyle" asp-route-searchTerm="@ViewBag.SearchTerm" class="btn btn-secondary btn-sm float-right @nextDisabled shadow">
             Trang sau <i class="fa fa-angle-double-right"></i>
         </a>
 
@@ -117,5 +193,9 @@
             modal.find('.modal-body input').val(recipient)
         })
         @Html.Raw(TempData["Info"])
+
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
     </script>
 }

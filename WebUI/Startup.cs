@@ -80,6 +80,10 @@ namespace WebUI
                     name: "admin",
                     areaName: "Admin",
                     pattern: "admin/{controller=Dashboards}/{action=Index}/{id?}");
+                endpoints.MapAreaControllerRoute(
+                    name: "api",
+                    areaName: "API",
+                    pattern: "api/{controller=Dashboards}/{action=Index}/{id?}");
 
                 endpoints.MapControllerRoute(
                     name: "default",

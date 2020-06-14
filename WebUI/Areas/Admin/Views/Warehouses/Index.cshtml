@@ -5,23 +5,17 @@
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
-<div class="alert alert-info mb-2">Chuyên mục đang code</div>
-
 <div class="card">
     <div class="card-header">
         <a asp-action="Create" class="btn btn-outline-danger btn-sm float-right"><i class="fa fa-plus"></i> Tạo mới</a>
         <h3 class="card-title"><i class="fab fa-react"></i> @ViewData["Title"]</h3>
     </div>
-    <!-- /.card-header -->
     <div class="card-body">
-        <table class="table table-bordered mb-3 dataTable">
-            <thead>
+        <table class="table table-bordered mb-3 dataTable table-striped table-hover">
+            <thead class="bg-danger">
                 <tr>
                     <th>
                         @Html.DisplayNameFor(model => model.Name)
-                    </th>
-                    <th>
-                        Danh mục
                     </th>
                     <th></th>
                 </tr>
@@ -34,10 +28,7 @@
                             @Html.DisplayFor(modelItem => item.Name)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.Category.Name)
-                        </td>
-                        <td>
-                            <a asp-action="Details" asp-route-id="@item.WarehouseId" class="btn btn-info btn-sm"><i class="fa fa-folder"></i> Chi tiết</a> 
+                            <a asp-action="Details" asp-route-id="@item.WarehouseId" class="btn btn-info btn-sm"><i class="fa fa-folder"></i> Chi tiết</a>
                             <a asp-action="Edit" asp-route-id="@item.WarehouseId" class="btn btn-primary btn-sm"><i class="fa fa-pen"></i> Sửa</a>
                             <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-whatever="@item.WarehouseId">
                                 <i class="fa fa-trash"></i> Xóa

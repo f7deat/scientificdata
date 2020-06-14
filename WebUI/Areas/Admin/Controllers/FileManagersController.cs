@@ -24,5 +24,16 @@ namespace WebUI.Areas.Admin.Controllers
             ViewBag.Directories = Directory.GetDirectories(_webHostEnvironment.WebRootPath + "\\files");
             return View();
         }
+        public IActionResult Folder(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return NotFound("Can't not access to empty folder!");
+            }
+            ViewData["Title"] = path;
+            var dir = new DirectoryInfo(path);
+            FileInfo[] files = dir.GetFiles();
+            return View(files);
+        }
     }
 }

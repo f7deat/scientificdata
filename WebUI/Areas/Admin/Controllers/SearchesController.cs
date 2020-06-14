@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 
 namespace WebUI.Areas.Admin.Controllers
 {
@@ -28,28 +29,36 @@ namespace WebUI.Areas.Admin.Controllers
         public async Task<IActionResult> Index(string searchTerm,
             int? department,
             int? category,
-            int? topicType,
+            int? topicTypeId,
             string number,
             int? pageIndex,
-            int? year)
+            int? year,
+            DateTime? fromDate,
+            DateTime? toDate,
+            int[] authorids)
         {
             // Pagging and Searching
             ViewBag.SearchTerm = searchTerm;
             ViewBag.Depertment = department;
             ViewBag.Category = category;
-            ViewBag.TopicType = topicType;
+            ViewBag.TopicType = topicTypeId;
             ViewBag.Number = number;
+            ViewBag.Year = year;
+            ViewBag.FromDate = fromDate;
+            ViewBag.ToDate = toDate;
 
             // Dropdown Data
             ViewBag.Categories = await _context.Categories.ToListAsync();
-            ViewBag.Departments = await _context.Departments.Include(x => x.Topics).Take(5).ToListAsync();
-            ViewBag.TopicTypes = await _context.TopicTypes.Include(x => x.Topics).Take(5).ToListAsync();
+            ViewBag.Departments = await _context.Departments.Include(x => x.Topics).Take(10).ToListAsync();
+            ViewBag.TopicTypes = await _context.TopicTypes.Include(x => x.Topics).Take(10).ToListAsync();
 
             ViewBag.CategoriesSelect = new SelectList(_context.Categories, "CategoryId", "Name", category);
             ViewBag.DepartmentsSelect = new SelectList(_context.Departments, "DepartmentId", "Name", department);
-            ViewBag.TopicTypesSelect = new SelectList(_context.TopicTypes, "TopicTypeId", "Name", topicType);
+            ViewBag.TopicTypesSelect = new SelectList(_context.TopicTypes, "TopicTypeId", "Name", topicTypeId);
 
             ViewBag.Years = new SelectList(_context.Topics.Where(x => x.PublishDate != null).Select(x => x.PublishDate.Value.Year).Distinct(), year);
+
+            ViewData["Authors"] = new MultiSelectList(_context.Authors, "AuthorId", "Name", authorids);
 
             var topics = _context.Topics.AsQueryable();
             if (!string.IsNullOrEmpty(searchTerm))
@@ -68,30 +77,38 @@ namespace WebUI.Areas.Admin.Controllers
             {
                 topics = topics.Where(x => x.Number.Contains(number));
             }
-            if (topicType!=null)
+            if (topicTypeId != null)
             {
-                topics = topics.Where(x => x.TopicTypeId == topicType);
+                topics = topics.Where(x => x.TopicTypeId == topicTypeId);
             }
             if (year != null)
             {
                 topics = topics.Where(x => x.PublishDate != null && x.PublishDate.Value.Year == year);
             }
+            if (fromDate != null && toDate != null)
+            {
+                topics = topics.Where(x => x.PublishDate >= fromDate && x.PublishDate <= toDate);
+            }
+            if (authorids?.Length > 0)
+            {
+                topics = topics.Where(x => x.AuthorTopics.Any(x=> authorids.Contains(x.AuthorId)));
+            }
 
             return View(await PaginatedList<Topic>.CreateAsync(topics.OrderByDescending(x=>x.ModifiedDate), pageIndex ?? 1, 10));
         }
 
-        public async Task<IActionResult> TopicTypes(TopicType topicType, string searchTerm, int? pageIndex)
+        public async Task<IActionResult> TopicTypes(int topicTypeId, string searchTerm, int? pageIndex)
         {
             ViewBag.SearchTerm = searchTerm;
 
-            var topics = _context.Topics.Where(x=>x.TopicType == topicType);
+            var topics = _context.Topics.Where(x=>x.TopicTypeId == topicTypeId);
             if (!string.IsNullOrEmpty(searchTerm))
             {
                 topics = topics.Where(x => x.Name.Contains(searchTerm));
             }
             
-            ViewBag.Title = EnumHelper<TopicType>.GetDisplayValue(topicType);
-            ViewBag.TopicType = topicType;
+            ViewBag.Title = "Loại tài liệu";
+            ViewBag.TopicType = topicTypeId;
 
             return View(await PaginatedList<Topic>.CreateAsync(topics.Include(x => x.AuthorTopics).Include(x => x.Category).OrderByDescending(x => x.ModifiedDate), pageIndex ?? 1, 10));
         }
@@ -115,7 +132,7 @@ namespace WebUI.Areas.Admin.Controllers
             if (!string.IsNullOrEmpty(signer))
             {
                 ViewData["Title"] = signer;
-                return View(await PaginatedList<Topic>.CreateAsync(_context.Topics.Where(x => x.Signer.ToLower() == signer.ToLower()), pageIndex ?? 1, 10));
+                return View(await PaginatedList<Topic>.CreateAsync(_context.Topics.Where(x => x.Signer.ToLower() == signer.ToLower()).OrderByDescending(x => x.PublishDate), pageIndex ?? 1, 10));
             }
             await _logService.Write(LogType.Warning, "Param người ký bị bỏ trống!");
             return NotFound();

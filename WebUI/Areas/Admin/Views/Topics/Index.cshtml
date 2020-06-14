@@ -8,8 +8,12 @@
 <link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
 <link href="~/lib/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" />
 <link href="~/lib/daterangepicker/daterangepicker.css" rel="stylesheet" />
+<link href="~/lib/daterangepicker/bootstrap-daterangepicker.css" rel="stylesheet" />
 <div class="card">
     <div class="card-header">
+        <div class="font-weight-bold float-right">
+            Tổng số: @Model.TotalRecord
+        </div>
         <h3 class="card-title"><i class="fab fa-react"></i> @ViewData["Title"]</h3>
     </div>
     <!-- /.card-header -->
@@ -21,66 +25,23 @@
                 <a href="/admin/topics" class="btn btn-secondary"><i class="fa fa-redo"></i> Hủy</a>
             </form>
             <a asp-action="Create" class="btn btn-primary"><i class="fa fa-plus"></i> Tạo mới</a>
-            <button class="btn btn-success" id="export"><i class="fa fa-file-excel"></i> Xuất Excel</button>
+            <button class="btn btn-success" id="export"><i class="fa fa-file-excel"></i> Xuất Excel <i class="fas fa-spinner fa-spin d-none"></i></button>
         </div>
-        <table class="table table-bordered mb-3">
-            <thead>
+        <table class="table table-bordered table-striped table-hover mb-3">
+            <thead class="bg-danger">
                 <tr>
                     <th>
                         Tên tài liệu
                     </th>
-                    <th>
-                        Tác giả
+                    <th class="text-truncate">
+                        Người ký/Nhà khoa học
                     </th>
-                    <th>
-                        Danh mục
-                    </th>
-                    @*<th>
-                           Năm xuất bản
-                        </th>*@
                     <th>
                         Tác vụ
                     </th>
                 </tr>
             </thead>
             <tbody>
-                @*<tr>*@
-                @*<td>
-                        <form class="form-inline" action="/admin/topics/index" method="get">
-                            <input type="text" class="form-control mr-2" placeholder="Nhập tên tài liệu..." name="topicName" value="@ViewBag.TopicName" />
-                            <button class="btn btn-primary" type="submit"><i class="fa fa-arrow-circle-right"></i></button>
-                        </form>
-                    </td>
-                    <td>
-                        <form class="form-inline" action="/admin/authors/details" method="get">
-                            <select class="form-control mr-2 d-block" asp-items="ViewBag.Authors" name="id" id="AuthorIds">
-                            </select>
-                            <button class="btn btn-primary ml-2" type="submit"><i class="fa fa-arrow-circle-right"></i></button>
-                        </form>
-                    </td>
-                    <td>
-                        <form class="form-inline" action="/admin/categories/details" method="get">
-                            <select class="form-control mr-2 d-block" name="id">
-                                @foreach (var item in ViewBag.Categories)
-                                {
-                                    <option value="@item.CategoryId">@item.Name</option>
-                                }
-                            </select>
-                            <button class="btn btn-primary" type="submit"><i class="fa fa-arrow-circle-right"></i></button>
-                        </form>
-                    </td>*@
-                @*<td>
-                        <form class="form-inline" action="/admin/topics/index" method="get">
-                            <select class="form-control mr-2 d-block" name="publishDate">
-                                @foreach (var item in Model.Select(x=>x.PublishDate?.Year).Distinct())
-                                {
-                                    <option value="@item">@item</option>
-                                }
-                            </select>
-                            <button class="btn btn-primary" type="submit"><i class="fa fa-arrow-circle-right"></i></button>
-                        </form>
-                    </td>*@
-                @*</tr>*@
                 @foreach (var item in Model)
                 {
                     <tr>
@@ -94,17 +55,11 @@
                             @foreach (var author in item.AuthorTopics)
                             {
                                 <a href="/admin/authors/details/@author.AuthorId" data-toggle="tooltip" data-placement="top" title="@author.Author.Name">
-                                    <img src="~/img/profile/@author.Author.Avatar" class="img-circle img-bordered-sm" width="40" height="40" />
+                                    <img src="~/img/profile/@author.Author.Avatar" class="img-circle img-bordered-sm" width="40" height="40" style="object-fit: cover"/>
                                 </a>
                             }
                         </td>
-                        <td>
-                            <a href="/admin/categories/details/@item.CategoryId?returnUrl=/admin/topics">@item.Category?.Name</a>
-                        </td>
-                        @*<td>
-                                <b>@item.PublishDate?.Year</b>
-                            </td>*@
-                        <td>
+                        <td class="text-truncate">
                             <a asp-action="Edit" asp-route-id="@item.TopicId" class="btn btn-primary btn-sm"><i class="fa fa-pen"></i> Sửa</a>
                             <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-whatever="@item.TopicId">
                                 <i class="fa fa-trash"></i> Xóa
@@ -179,23 +134,67 @@
         });
 
         //Date range as a button
-    $('#export').daterangepicker(
-      {
-        ranges   : {
-          'Hôm nay'       : [moment(), moment()],
-          'Hôm qua'   : [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-          '7 ngày gần đây' : [moment().subtract(6, 'days'), moment()],
-          '30 ngày gần đây': [moment().subtract(29, 'days'), moment()],
-          'Tháng này'  : [moment().startOf('month'), moment().endOf('month')],
-          'Tháng trước'  : [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-        },
-        startDate: moment().subtract(29, 'days'),
-        endDate  : moment()
-      },
-        function (start, end) {
-            console.log("/admin/tools/exporttopic?startDate=" + start.format('DD-MM-YYYY') + "&endDate=" + end.format('DD-MM-YYYY'))
-            window.location.href = "/admin/tools/exporttopic?startDate=" + start.format('MM-DD-YYYY') + "&endDate=" + end.format('MM-DD-YYYY');
-      }
-    )
+        $('#export').daterangepicker(
+            {
+                ranges: {
+                    'Hôm nay': [moment(), moment()],
+                    'Hôm qua': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    '7 ngày gần đây': [moment().subtract(6, 'days'), moment()],
+                    '30 ngày gần đây': [moment().subtract(29, 'days'), moment()],
+                    'Tháng này': [moment().startOf('month'), moment().endOf('month')],
+                    'Tháng trước': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                },
+                startDate: moment().subtract(29, 'days'),
+                endDate: moment(),
+                locale: {
+                    daysOfWeek: [
+                        "T2",
+                        "T3",
+                        "T4",
+                        "T5",
+                        "T6",
+                        "T7",
+                        "CN"
+                    ],
+                    monthNames: [
+                        "Tháng 1",
+                        "Tháng 2",
+                        "Tháng 3",
+                        "Tháng 4",
+                        "Tháng 5",
+                        "Tháng 6",
+                        "Tháng 7",
+                        "Tháng 8",
+                        "Tháng 9",
+                        "Tháng 10",
+                        "Tháng 11",
+                        "Tháng 12"
+                    ]
+                },
+                maxDate: moment()
+            },
+            function (start, end) {
+                $('.fa-spinner').removeClass('d-none');
+                $.ajax({
+                    url: '/admin/tools/exporttopic',
+                    type: 'POST',
+                    dataType: 'html',
+                    data: {
+                        startDate: start.format('MM-DD-YYYY'),
+                        endDate: end.format('MM-DD-YYYY')
+                    }
+                }).done(function (res) {
+                    response = JSON.parse(res);
+                    if (response.isSuccess) {
+                        window.location.href = response.downloadUrl;
+                    }
+                    else {
+                        toastr["error"](response.message);
+                    }
+                    $('.fa-spinner').addClass('d-none');
+                });
+            }
+        );
+        @Html.Raw(TempData["Info"])
     </script>
 }

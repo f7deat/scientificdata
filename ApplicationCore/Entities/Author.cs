@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace ApplicationCore.Entities
 {
@@ -38,6 +37,15 @@ namespace ApplicationCore.Entities
         public DateTime CreatedDate { get; set; }
         [Display(Name = "Ngày sửa đổi")]
         public DateTime ModifiedDate { get; set; }
+        [Display(Name = "Học hàm")]
+        public string AcademicRank { get; set; }
+        [Display(Name = "Học vị")]
+        public string Degree { get; set; }
+        [Display(Name = "Đơn vị công tác")]
+        public string Deparment { get; set; }
+        [Display(Name = "Chuyên nghành")]
+        public string Specialized { get; set; }
+        public int? Order { get; set; }
         public int Status { get; set; }
 
         public virtual Department Department { get; set; }

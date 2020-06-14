@@ -17,7 +17,6 @@
                 <button class="btn btn-primary mr-2" type="submit"><i class="fa fa-search"></i> Tìm kiếm</button>
                 <a class="btn btn-secondary" href="/admin/searches/topictypes?topictype=@ViewBag.TopicType"><i class="fa fa-redo"></i> Hủy</a>
             </form>
-            @*<a href="/admin/topics/create" class="btn btn-primary"><i class="fa fa-plus"></i> Tạo mới</a>*@
         </div>
         <table class="table table-bordered mb-3">
             <thead>
@@ -25,11 +24,11 @@
                     <th>
                         Tên tài liệu
                     </th>
-                    <th>
-                        Tác giả
+                    <th class="text-truncate">
+                        Nhà khoa học
                     </th>
-                    <th>
-                        Danh mục
+                    <th class="text-truncate">
+                        Loại văn bản
                     </th>
                 </tr>
             </thead>
@@ -39,7 +38,7 @@
                     <tr>
                         <td>
                             <div class="font-weight-bold"><a href="/admin/topics/details/@item.TopicId?returnUrl=/admin/searches/topictypes?topictype=@ViewBag.TopicType"><i class="fa fa-file"></i> @item.Name</a></div>
-                            <i class="text-muted text-sm"><i class="fa fa-calendar"></i>  @item.PublishDate?.ToString("dd/MM/yyyy")</i>
+                            <div class="text-muted text-sm">@item.Description</div>
                         </td>
                         <td>
                             @foreach (var author in item.AuthorTopics)
@@ -49,7 +48,7 @@
                                 </a>
                             }
                         </td>
-                        <td>
+                        <td class="text-truncate">
                             <b>@item.Category?.Name</b>
                         </td>
                     </tr>

@@ -50,6 +50,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("AcademicRank")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Avatar")
                         .HasColumnType("nvarchar(1000)")
                         .HasMaxLength(1000);
@@ -62,6 +65,12 @@ namespace Infrastructure.Migrations
 
                     b.Property<DateTime?>("DateOfBirth")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Degree")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Deparment")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("DepartmentId")
                         .HasColumnType("int");
@@ -84,6 +93,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(200)")
                         .HasMaxLength(200);
 
+                    b.Property<int?>("Order")
+                        .HasColumnType("int");
+
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(200)")
                         .HasMaxLength(200);
@@ -91,6 +103,9 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Social")
                         .HasColumnType("nvarchar(1000)")
                         .HasMaxLength(1000);
+
+                    b.Property<string>("Specialized")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -246,6 +261,10 @@ namespace Infrastructure.Migrations
 
                     b.Property<DateTime?>("PublishDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Scientist")
+                        .HasColumnType("nvarchar(1000)")
+                        .HasMaxLength(1000);
 
                     b.Property<string>("Signer")
                         .HasColumnType("nvarchar(max)");

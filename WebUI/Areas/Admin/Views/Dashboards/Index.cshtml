@@ -25,8 +25,8 @@
             <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-users"></i></span>
 
             <div class="info-box-content">
-                <span class="info-box-text">Số tác giả</span>
-                <span class="info-box-number">@ViewBag.AuthorCount</span>
+                <span class="info-box-text">Loại tài liệu</span>
+                <span class="info-box-number">@ViewBag.TopicTypeCount</span>
             </div>
             <!-- /.info-box-content -->
         </div>
@@ -41,7 +41,7 @@
             <span class="info-box-icon bg-success elevation-1"><i class="fas fa-book"></i></span>
 
             <div class="info-box-content">
-                <span class="info-box-text">Số lĩnh vực</span>
+                <span class="info-box-text">Loại văn bản</span>
                 <span class="info-box-number">@ViewBag.CategoryCount</span>
             </div>
             <!-- /.info-box-content -->
@@ -54,8 +54,8 @@
             <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-users"></i></span>
 
             <div class="info-box-content">
-                <span class="info-box-text">Số thành viên</span>
-                <span class="info-box-number">@ViewBag.UserCount</span>
+                <span class="info-box-text">Số nhà khoa học</span>
+                <span class="info-box-number">@ViewBag.AuthorCount</span>
             </div>
             <!-- /.info-box-content -->
         </div>
@@ -84,20 +84,17 @@
                 <ul class="products-list product-list-in-card pl-2 pr-2">
                     @foreach (var item in ViewBag.NewTopics)
                     {
-                    <li class="item">
-                        @*<div class="product-img">
-                                <img src="dist/img/default-150x150.png" alt="Product Image" class="img-size-50">
-                            </div>*@
-                        <div class="product-info ml-2">
-                            <a href="/admin/topics/details/@item.TopicId?returnUrl=/admin/dashboards" class="product-title">
-                                @item.Name
-                            </a>
-                            <span class="product-description">
-                                @item.ModifiedDate
-                            </span>
-                        </div>
-                    </li>
- <!-- /.item -->
+                        <li class="item">
+                            <div class="product-info ml-2">
+                                <a href="/admin/topics/details/@item.TopicId?returnUrl=/admin/dashboards" class="product-title">
+                                    @item.Name
+                                </a>
+                                <span class="product-description">
+                                    @item.ModifiedDate
+                                </span>
+                            </div>
+                        </li>
+                        <!-- /.item -->
                     }
                 </ul>
             </div>
@@ -110,9 +107,10 @@
     </div>
     <div class="col-md-6">
         <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Tác giả mới</h3>
 
+            <div class="card-header">
+
+                <h3 class="card-title">Loại văn bản</h3>
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
                         <i class="fas fa-minus"></i>
@@ -122,37 +120,21 @@
                     </button>
                 </div>
             </div>
-            <!-- /.card-header -->
-            <div class="card-body p-0">
-                <ul class="users-list clearfix">
-                    @foreach (var item in ViewBag.NewAuthors)
-                    {
-                    <li>
-                        <img src="~/img/profile/@item?.Avatar" alt="User Image" width="128" height="128" style="object-fit: cover">
-                        <a class="users-list-name" href="/admin/authors/details/@item.AuthorId">@item?.Name</a>
-                    </li>
-                    }
-                </ul>
-                <!-- /.users-list -->
+
+            <!-- categories-->
+
+            <div class="card-body">
+
+                <canvas id="pieChartCategory" style="height:230px; min-height:230px"></canvas>
+
             </div>
-            <!-- /.card-body -->
-            <div class="card-footer text-center">
-                <a href="/admin/authors">Xem tất cả</a>
-            </div>
-            <!-- /.card-footer -->
+
         </div>
-    </div>
-</div>
-
-<div class="row">
-
-    <div class="col-md-6">
-
         <div class="card">
 
             <div class="card-header">
 
-                <h3 class="card-title">Loại văn bản</h3>
+                <h3 class="card-title">Loại tài liệu</h3>
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
                         <i class="fas fa-minus"></i>
@@ -172,10 +154,6 @@
             </div>
 
         </div>
-
-    </div>
-
-    <div class="col-md-6">
         <!-- AREA CHART -->
         <div class="card">
             <div class="card-header">
@@ -195,7 +173,38 @@
             </div>
             <!-- /.card-body -->
         </div>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Nhà khoa học mới</h3>
 
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" data-card-widget="remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body p-0">
+                <ul class="users-list clearfix">
+                    @foreach (var item in ViewBag.NewAuthors)
+                    {
+                        <li>
+                            <img src="~/img/profile/@item?.Avatar" alt="User Image" width="128" height="128" style="object-fit: cover">
+                            <a class="users-list-name" href="/admin/authors/details/@item.AuthorId">@item?.Name</a>
+                        </li>
+                    }
+                </ul>
+                <!-- /.users-list -->
+            </div>
+            <!-- /.card-body -->
+            <div class="card-footer text-center">
+                <a href="/admin/authors">Xem tất cả</a>
+            </div>
+            <!-- /.card-footer -->
+        </div>
     </div>
 </div>
 
@@ -204,34 +213,82 @@
 @section scripts {
     <script src="~/lib/chart.js/Chart.min.js"></script>
     <script>
-        var donutData = {
-            labels: [
-                'Thông tư',
-                'Nghị định',
-                'Bài viết',
-                'Nghị quyết',
-                'Đề án',
-                'Đề tài',
-            ],
-            datasets: [
-                {
-                    data: [@ViewBag.Circulars,@ViewBag.Decree,@ViewBag.Posts,@ViewBag.Resolution,@ViewBag.Scheme,@ViewBag.Topic],
-                    backgroundColor: ['#f56954', '#00a65a', '#f39c12', '#00c0ef', '#3c8dbc', '#d2d6de']
+            var pieColors = [];
+            $.ajax({
+                url: '/admin/dashboards/TopicTypeDataPieChart',
+                success: function (data) {
+                    function getRandomColor() {
+                        var letters = '0123456789ABCDEF';
+                        var color = '#';
+                        for (var i = 0; i < 6; i++) {
+                            color += letters[Math.floor(Math.random() * 16)];
+                        }
+                        return color;
+                    }
+                    for (var i = 0; i < data.datasets.length; i++) {
+                        pieColors.push(getRandomColor());
+                    }
+
+                    var donutData = {
+                        labels: data.lables,
+                        datasets: [
+                            {
+                                data: data.datasets,
+                                backgroundColor: pieColors
+                            }
+                        ]
+                    };
+                    var pieChartCanvas = $('#pieChart').get(0).getContext('2d');
+                    var pieData = donutData;
+                    var pieOptions = {
+                        maintainAspectRatio: false,
+                        responsive: true,
+                    };
+
+                    var pieChart = new Chart(pieChartCanvas, {
+                        type: 'pie',
+                        data: pieData,
+                        options: pieOptions
+                    });
                 }
-            ]
-        };
+            });
+        $.ajax({
+            url: '/admin/dashboards/CategoryDataPieChart',
+            success: function (data) {
+                function getRandomColor() {
+                    var letters = '0123456789ABCDEF';
+                    var color = '#';
+                    for (var i = 0; i < 6; i++) {
+                        color += letters[Math.floor(Math.random() * 16)];
+                    }
+                    return color;
+                }
+                for (var i = 0; i < data.datasets.length; i++) {
+                    pieColors.push(getRandomColor());
+                }
 
-        var pieChartCanvas = $('#pieChart').get(0).getContext('2d');
-        var pieData = donutData;
-        var pieOptions = {
-            maintainAspectRatio: false,
-            responsive: true,
-        };
+                var donutData = {
+                    labels: data.lables,
+                    datasets: [
+                        {
+                            data: data.datasets,
+                            backgroundColor: pieColors
+                        }
+                    ]
+                };
+                var pieChartCanvas = $('#pieChartCategory').get(0).getContext('2d');
+                var pieData = donutData;
+                var pieOptions = {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                };
 
-        var pieChart = new Chart(pieChartCanvas, {
-            type: 'pie',
-            data: pieData,
-            options: pieOptions
+                var pieChart = new Chart(pieChartCanvas, {
+                    type: 'pie',
+                    data: pieData,
+                    options: pieOptions
+                });
+            }
         });
 
 
@@ -254,8 +311,8 @@
                     pointStrokeColor: 'rgba(60,141,188,1)',
                     pointHighlightFill: '#fff',
                     pointHighlightStroke: 'rgba(60,141,188,1)',
-                    data: @ViewBag.DataMonth
-        }
+                    data: @ViewBag.DataMonth,
+                }
             ]
         };
 
@@ -280,9 +337,9 @@
     }
 
     // This will get the first returned node in the jQuery collection.
-    var areaChart       = new Chart(areaChartCanvas, { 
+    var areaChart       = new Chart(areaChartCanvas, {
       type: 'line',
-      data: areaChartData, 
+      data: areaChartData,
       options: areaChartOptions
     })
 

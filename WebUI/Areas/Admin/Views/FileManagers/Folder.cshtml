@@ -1,0 +1,60 @@
+﻿@model System.IO.FileInfo[]
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fab fa-react"></i> Thư mục: <i class="text-muted">@ViewData["Title"]</i></h3>
+    </div>
+    <div class="card-body">
+        <div class="text-info mb-2"><small><i class="fa fa-info-circle"></i> Có thể sửa nội dung file, nhưng chỉ được đổi tên file trên hệ thống!</small></div>
+        <table class="table table-bordered mb-3 dataTable">
+            <thead>
+                <tr>
+                    <th>
+                        Tên file
+                    </th>
+                    <th>
+                        Dung lượng
+                    </th>
+                    <th>
+                        Đường dẫn
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="font-weight-bold">
+                            @item.Name
+                        </td>
+                        <td>
+                            @item.Length
+                        </td>
+                        <td>
+                            <input type="text" value="@item.FullName" class="form-control"/>
+                        </td>
+                        <td>
+                            <button class="btn btn-outline-primary btn-sm" type="button" onclick="Clipboard_CopyTo()"><i class="fas fa-folder-open"></i> Mở tệp tin</button>
+                            <button class="btn btn-outline-danger btn-sm" type="button" onclick="RemoveFile()"><i class="fa fa-trash"></i> Xóa</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section scripts {
+<script>
+    function RemoveFile() {
+        bootbox.alert("Bạn không thể xóa file này. Hãy chắc chắn rằng file này không nằm trong tài liệu nào cả!");
+    }
+    function Clipboard_CopyTo() {
+        bootbox.alert("Trình duyệt bạn đang sử dụng không cho phép mở trực tiếp, hãy sao chép đường dẫn ở bên cạnh dán vào File Exporler để truy cập!");
+    }
+</script>
+}

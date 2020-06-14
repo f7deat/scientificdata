@@ -17,42 +17,58 @@
     <link href="~/lib/fontawesome-free/css/all.css" rel="stylesheet" />
     <!-- icheck bootstrap -->
     <link href="~/lib/icheck-bootstrap/icheck-bootstrap.css" rel="stylesheet" />
-    <!-- Theme style -->
     <link href="~/css/adminlte.min.css" rel="stylesheet" />
+    <style>
+        .validation-summary-errors {
+            border-left: 4px solid red;
+            background: #eee;
+        }
+    </style>
 </head>
-<body class="hold-transition login-page">
-    <div class="login-box">
-        <div class="login-logo">
-            <a href="#"><b>Hệ thống</b></a>
-        </div>
-        <!-- /.login-logo -->
-        <div class="card">
-            <div class="card-body login-card-body">
-                <p class="login-box-msg">Đăng nhập vào phần quản trị</p>
-                <form id="account" method="post" class="kt-form">
-                    <div asp-validation-summary="All" class="text-danger"></div>
-                    <div class="input-group mb-3">
-                        <input asp-for="Input.Email" class="form-control" placeholder="Email" />
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-envelope"></span>
-                            </div>
-                        </div>
-                        <span asp-validation-for="Input.Email" class="text-danger"></span>
-                    </div>
-                    <div class="input-group mb-3">
-                        <input asp-for="Input.Password" class="form-control" placeholder="Mật khẩu" />
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <span class="fas fa-lock"></span>
-                            </div>
-                        </div>
-                        <span asp-validation-for="Input.Password" class="text-danger"></span>
-                    </div>
-                    <button class="btn btn-danger btn-block" type="submit">Đăng nhập</button>
-                </form>
+<body class="hold-transition login-page" style="background: url('/img/bg-9.jpg') center;">
+    <div class="container-login bg-white shadow" style="padding: 150px 200px; border-radius: 20px">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="login100-pic js-tilt" data-tilt="" style="transform: perspective(300px) rotateX(0deg) rotateY(0deg); will-change: transform;">
+                    <img src="~/img/img-01.png" />
+                </div>
             </div>
-            <!-- /.login-card-body -->
+            <div class="col-md-6">
+                <div class="login-box">
+                    <div class="login-logo">
+                        <a href="#"><b>Hệ thống</b></a>
+                    </div>
+                    <!-- /.login-logo -->
+                    <div class="card">
+                        <div class="card-body login-card-body">
+                            <form id="account" method="post" class="kt-form">
+                                <div asp-validation-summary="All" class="text-danger"></div>
+                                <div class="input-group mb-3">
+                                    <input asp-for="Input.Email" class="form-control" placeholder="Email" />
+                                    <div class="input-group-append">
+                                        <div class="input-group-text">
+                                            <span class="fas fa-envelope"></span>
+                                        </div>
+                                    </div>
+                                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <input asp-for="Input.Password" class="form-control" placeholder="Mật khẩu" />
+                                    <div class="input-group-append">
+                                        <div class="input-group-text">
+                                            <span class="fas fa-lock"></span>
+                                        </div>
+                                    </div>
+                                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                                </div>
+                                <button class="btn btn-danger btn-block" type="submit">Đăng nhập</button>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.login-card-body -->
+            </div>
         </div>
     </div>
     <!-- /.login-box -->
@@ -62,6 +78,5 @@
     <script src="~/lib/bootstrap/js/bootstrap.js"></script>
     <!-- AdminLTE App -->
     <script src="~/js/adminlte.min.js"></script>
-
 </body>
 </html>

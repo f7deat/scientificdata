@@ -1,10 +1,10 @@
 ﻿@model ApplicationCore.Entities.Author
 
 @{
-    ViewData["Title"] = "Hồ sơ tác giả";
+    ViewData["Title"] = "Hồ sơ Nhà khoa học";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
-
+<link href="~/lib/chart.js/Chart.min.css" rel="stylesheet" />
 <section class="content">
     <div class="container-fluid">
         <div class="row">
@@ -16,7 +16,8 @@
                         <div class="text-center">
                             <img class="profile-user-img img-circle"
                                  src="~/img/profile/@Model.Avatar"
-                                 alt="User profile picture" style="object-fit:cover">
+                                 alt="User profile picture" style="object-fit:cover"
+                                 width="100" height="100" />
                         </div>
 
                         <h3 class="profile-username text-center">@Model.Name</h3>
@@ -56,6 +57,22 @@
                         <strong><i class="fas fa-map-marker-alt mr-1"></i> Số điện thoại</strong>
 
                         <p class="text-muted">@Model.PhoneNumber</p>
+                        <hr />
+                        <strong><i class="fas fa-map-marker-alt mr-1"></i> Học hàm</strong>
+
+                        <p class="text-muted">@Model.AcademicRank</p>
+                        <hr />
+                        <strong><i class="fas fa-map-marker-alt mr-1"></i> Học vị</strong>
+
+                        <p class="text-muted">@Model.Degree</p>
+                        <hr />
+                        <strong><i class="fas fa-map-marker-alt mr-1"></i> Đơn vị công tác</strong>
+
+                        <p class="text-muted">@Model.Deparment</p>
+                        <hr />
+                        <strong><i class="fas fa-map-marker-alt mr-1"></i> Chuyên nghành</strong>
+
+                        <p class="text-muted">@Model.Specialized</p>
                         <hr />
                     </div>
                     <!-- /.card-body -->
@@ -111,12 +128,14 @@
                                             var nextDisabled = ((ViewBag.Total - (5 * ViewBag.PageIndex)) <= 0) ? "disabled" : "";
                                         }
 
-                                        <a asp-action="details" asp-route-id="@Model.AuthorId" asp-route-pageIndex="@(ViewBag.PageIndex - 1)" class="btn btn-secondary btn-sm @prevDisabled">
-                                            <i class="fa fa-angle-double-left"></i> Trang trước
-                                        </a>
-                                        <a asp-action="details" asp-route-id="@Model.AuthorId" asp-route-pageIndex="@(ViewBag.PageIndex + 1)" class="btn btn-secondary btn-sm float-right @nextDisabled">
-                                            Trang sau <i class="fa fa-angle-double-right"></i>
-                                        </a>
+                                        <div class="pl-5 pr-1">
+                                            <a asp-action="details" asp-route-id="@Model.AuthorId" asp-route-pageIndex="@(ViewBag.PageIndex - 1)" class="btn btn-secondary btn-sm @prevDisabled">
+                                                <i class="fa fa-angle-double-left"></i> Trang trước
+                                            </a>
+                                            <a asp-action="details" asp-route-id="@Model.AuthorId" asp-route-pageIndex="@(ViewBag.PageIndex + 1)" class="btn btn-secondary btn-sm float-right @nextDisabled">
+                                                Trang sau <i class="fa fa-angle-double-right"></i>
+                                            </a>
+                                        </div>
                                     </div>
                                     <!-- END timeline item -->
                                     <div>

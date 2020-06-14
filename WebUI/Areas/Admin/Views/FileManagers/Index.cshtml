@@ -10,10 +10,13 @@
     </div>
     <div class="card-body">
         <table class="table table-bordered mb-3 dataTable">
-            <thead>
+            <thead class="bg-danger">
                 <tr>
                     <th>
                         Thư mục
+                    </th>
+                    <th>
+                        Đường dẫn
                     </th>
                     <th></th>
                 </tr>
@@ -26,12 +29,24 @@
                             @item.Substring(item.LastIndexOf('\\') + 1)
                         </td>
                         <td>
-                            <a href="#" class="btn btn-info btn-sm"><i class="fa fa-folder"></i> Chi tiết</a>
+                            <input type="text" class="form-control" value="@item" onclick="Clipboard_CopyTo()"/>
+                        </td>
+                        <td>
+                            <a href="/admin/filemanagers/folder?path=@item" class="btn btn-outline-info btn-sm"><i class="fa fa-eye"></i> Chi tiết</a>
+                            <a href="@item" class="btn btn-outline-primary btn-sm" onclick="openFolder()"><i class="fas fa-folder-open"></i> Mở thư mục</a>
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
+        <div class="p-2 text-muted float-lg-right"><i class="fa fa-info-circle"></i> Vấn đề mở folder và file trên trình duyệt: <a href="https://stackoverflow.com/questions/5246292/open-local-folder-from-link" target="_blank">Xem chi tiết</a></div>
     </div>
 </div>
 
+@section scripts {
+<script>
+    function openFolder() {
+        bootbox.alert("Vì lý do bảo mật nên không thể trực tiếp mở thư mục. Bạn hãy copy đường dẫn bên cạnh và vào File Exporler của Windows, dán đường dẫn và truy cập");
+    }
+</script>
+}

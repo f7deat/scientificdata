@@ -1,0 +1,8 @@
+.daterangepicker .ranges li {
+    font-size: 15px;
+    padding: 10px 12px;
+}
+.daterangepicker .calendar-table th, .daterangepicker .calendar-table td {
+    line-height: 25px;
+    font-size: 14px;
+}

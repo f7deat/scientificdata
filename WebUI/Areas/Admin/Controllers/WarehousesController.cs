@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ApplicationCore.Entities;
 using Infrastructure.Data;
+using ApplicationCore.Interfaces;
 
 namespace WebUI.Areas.Admin.Controllers
 {
@@ -14,10 +15,12 @@ namespace WebUI.Areas.Admin.Controllers
     public class WarehousesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogService _logService;
 
-        public WarehousesController(ApplicationDbContext context)
+        public WarehousesController(ApplicationDbContext context, ILogService logService)
         {
             _context = context;
+            _logService = logService;
         }
 
         // GET: Admin/Warehouses
@@ -27,7 +30,6 @@ namespace WebUI.Areas.Admin.Controllers
             return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: Admin/Warehouses/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -38,27 +40,26 @@ namespace WebUI.Areas.Admin.Controllers
             var warehouse = await _context.Warehouses
                 .Include(w => w.Category)
                 .FirstOrDefaultAsync(m => m.WarehouseId == id);
+            ViewData["Title"] = warehouse.Name;
+            ViewBag.WarehouseId = warehouse.WarehouseId;
+            var topics = await _context.Topics.Where(x => x.WarehouseId == id).ToListAsync();
             if (warehouse == null)
             {
                 return NotFound();
             }
 
-            return View(warehouse);
+            return View(topics);
         }
 
-        // GET: Admin/Warehouses/Create
         public IActionResult Create()
         {
             ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "CategoryId");
             return View();
         }
 
-        // POST: Admin/Warehouses/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("WarehouseId,Name,Symbol,WarehouseType,Description,CategoryId")] Warehouse warehouse)
+        public async Task<IActionResult> Create(Warehouse warehouse)
         {
             if (ModelState.IsValid)
             {
@@ -87,12 +88,9 @@ namespace WebUI.Areas.Admin.Controllers
             return View(warehouse);
         }
 
-        // POST: Admin/Warehouses/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("WarehouseId,Name,Symbol,WarehouseType,Description,CategoryId")] Warehouse warehouse)
+        public async Task<IActionResult> Edit(int id, Warehouse warehouse)
         {
             if (id != warehouse.WarehouseId)
             {
@@ -151,6 +149,46 @@ namespace WebUI.Areas.Admin.Controllers
             _context.Warehouses.Remove(warehouse);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<JsonResult> GetTopics(string term)
+        {
+            try
+            {
+                var topics = new { results = await _context.Topics.Where(x => x.Name.Contains(term)).Select(x => new { id = x.TopicId, text = x.Name }).ToListAsync() };
+                return Json(topics);
+            }
+            catch (Exception ex)
+            {
+                await _logService.Write(LogType.Exception, ex.Message);
+                return Json(new { });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddTopic(int? topicId, int? warehouseId)
+        {
+            if (topicId == null || warehouseId == null)
+            {
+                return NotFound("Can't not add with empty id");
+            }
+            var topic = await _context.Topics.FindAsync(topicId);
+            topic.WarehouseId = warehouseId;
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Details), new { id = warehouseId });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteTopic(int? topicId, int? warehouseId)
+        {
+            if (topicId == null || warehouseId == null)
+            {
+                return NotFound("Can't not Delete with empty id");
+            }
+            var topic = await _context.Topics.FindAsync(topicId);
+            topic.WarehouseId = default;
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Details), new { id = warehouseId });
         }
 
         private bool WarehouseExists(int id)

@@ -6,65 +6,83 @@
 }
 
 <link href="~/lib/toastr/toastr.css" rel="stylesheet" />
-<div class="card">
-    <div class="card-header">
-        <h3 class="card-title">@ViewData["Title"]</h3>
-    </div>
-    <!-- /.card-header -->
-    <div class="card-body">
-        <div class="clearfix mb-3">
-            <form class="form-inline float-right" action="/admin/departments/index" method="get">
-                <input class="form-control mr-2" name="searchTerm" placeholder="Nhập từ khóa..." />
-                <button class="btn btn-primary mr-2" type="submit"><i class="fa fa-search"></i> Tìm kiếm</button>
-                <a href="/admin/departments" class="btn btn-secondary"><i class="fa fa-redo"></i> Hủy</a>
-            </form>
-            <a asp-action="Create" class="btn btn-primary"><i class="fa fa-plus"></i> Tạo mới</a>
-        </div>
-        <table class="table table-bordered mb-3">
-            <thead>
-                <tr>
-                    <th>
-                        Tên đơn vị
-                    </th>
-                    <th>
-                        Số tài liệu
-                    </th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>
-                            <a asp-action="Details" asp-route-id="@item.DepartmentId" data-toggle="tooltip" data-placement="top" title="@item.Description"><b>@item.Name</b></a>
-                        </td>
-                        <td>
-                            <b>@item.Topics.Count</b>
-                        </td>
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@item.DepartmentId" class="btn btn-primary btn-sm"><i class="fa fa-pen"></i> Chỉnh sửa</a>
-                            
-                            <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-whatever="@item.DepartmentId"><i class="fa fa-trash"></i> Xóa</button>
-                        </td>
-                    </tr>
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <div class="font-weight-bold float-right">
+                    Tổng số: @Model.TotalRecord
+                </div>
+                <h3 class="card-title">@ViewData["Title"]</h3>
+            </div>
+            <div class="card-body">
+                <div class="clearfix mb-3">
+                    <form class="form-inline float-right" action="/admin/departments/index" method="get">
+                        <input class="form-control mr-2" name="searchTerm" placeholder="Nhập từ khóa..." />
+                        <button class="btn btn-primary mr-2" type="submit"><i class="fa fa-search"></i> Tìm kiếm</button>
+                        <a href="/admin/departments" class="btn btn-secondary"><i class="fa fa-redo"></i> Hủy</a>
+                    </form>
+                    <a asp-action="Create" class="btn btn-primary"><i class="fa fa-plus"></i> Tạo mới</a>
+                </div>
+                <table class="table table-bordered table-striped table-hover mb-3">
+                    <thead class="bg-danger">
+                        <tr>
+                            <th>
+                                Tên đơn vị
+                            </th>
+                            <th>
+                                Số tài liệu
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@item.DepartmentId" data-toggle="tooltip" data-placement="top" title="@item.Description"><b>@item.Name</b></a>
+                                </td>
+                                <td>
+                                    <b>@item.Topics.Count</b>
+                                </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.DepartmentId" class="btn btn-primary btn-sm"><i class="fa fa-pen"></i> Chỉnh sửa</a>
+
+                                    <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-whatever="@item.DepartmentId"><i class="fa fa-trash"></i> Xóa</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                @{
+                    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+                    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
                 }
-            </tbody>
-        </table>
-
-        @{
-            var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
-            var nextDisabled = !Model.HasNextPage ? "disabled" : "";
-        }
 
 
-        <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)" class="btn btn-secondary btn-sm @prevDisabled shadow">
-            <i class="fa fa-angle-double-left"></i> Trang trước
-        </a>
-        <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)" class="btn btn-secondary btn-sm float-right @nextDisabled shadow">
-            Trang sau <i class="fa fa-angle-double-right"></i>
-        </a>
+                <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)" class="btn btn-secondary btn-sm @prevDisabled shadow">
+                    <i class="fa fa-angle-double-left"></i> Trang trước
+                </a>
+                <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)" class="btn btn-secondary btn-sm float-right @nextDisabled shadow">
+                    Trang sau <i class="fa fa-angle-double-right"></i>
+                </a>
 
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">@ViewData["Title"]</h3>
+            </div>
+            <div class="card-body">
+                <div class="chart">
+                    <canvas id="pieChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -91,6 +109,7 @@
 </div>
 
 @section scripts {
+    <script src="~/lib/chart.js/Chart.min.js"></script>
     <script>
          $(function () {
             $('[data-toggle="tooltip"]').tooltip()
@@ -102,5 +121,45 @@
             modal.find('.modal-body input').val(recipient)
         })
         @Html.Raw(TempData["Info"])
+
+        var pieColors = [];
+        $.ajax({
+            url: '/admin/dashboards/DepartmentPieChart',
+            success: function (data) {
+                function getRandomColor() {
+                    var letters = '0123456789ABCDEF';
+                    var color = '#';
+                    for (var i = 0; i < 6; i++) {
+                        color += letters[Math.floor(Math.random() * 16)];
+                    }
+                    return color;
+                }
+                for (var i = 0; i < data.datasets.length; i++) {
+                    pieColors.push(getRandomColor());
+                }
+
+                var donutData = {
+                    labels: data.lables,
+                    datasets: [
+                        {
+                            data: data.datasets,
+                            backgroundColor: pieColors
+                        }
+                    ]
+                };
+                var pieChartCanvas = $('#pieChart').get(0).getContext('2d');
+                var pieData = donutData;
+                var pieOptions = {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                };
+
+                var pieChart = new Chart(pieChartCanvas, {
+                    type: 'pie',
+                    data: pieData,
+                    options: pieOptions
+                });
+            }
+        });
     </script>
 }

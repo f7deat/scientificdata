@@ -9,10 +9,11 @@ namespace ApplicationCore.Entities
     public class Topic
     {
         public int TopicId { get; set; }
-        [StringLength(500), Display(Name = "Tiêu đề")]
+        [StringLength(500), Display(Name = "Tên văn bản")]
         public string Name { get; set; }
         [StringLength(500)]
         public string Url { get; set; }
+        [Display(Name = "Loại văn bản")]
         public int? CategoryId { get; set; }
         [StringLength(1000)]
         public string Description { get; set; }
@@ -28,8 +29,9 @@ namespace ApplicationCore.Entities
         public string Tags { get; set; }
         [StringLength(200)]
         public string Source { get; set; }
-        [Display(Name = "Người ký")]
+        [Display(Name = "Cơ quan ban hành")]
         public string Signer { get; set; }
+        [Display(Name = "Loại tài liệu")]
         public int? TopicTypeId { get; set; }
         public DateTime? EffectiveDate { get; set; }
         [StringLength(200)]
@@ -41,6 +43,8 @@ namespace ApplicationCore.Entities
         [StringLength(200)]
         public string ISSN { get; set; }
         public int? WarehouseId { get; set; }
+        [Display(Name = "Nhà khoa học"), StringLength(1000)]
+        public string Scientist { get; set; }
 
         [JsonIgnore]
         public virtual Warehouse Warehouse { get; set; }

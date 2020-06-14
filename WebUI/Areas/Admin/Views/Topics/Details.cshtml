@@ -29,13 +29,10 @@
                             @foreach (var item in Model.Tags.Split(",", StringSplitOptions.RemoveEmptyEntries))
                             {
                                 <a href="/admin/searches/tags?tagName=@item&returnUrl=/admin/searches/tags&tagName">
-                                    <span class="badge badge-dark">@item</span>
+                                    <span class="badge badge-dark text-truncate" style="max-width: 100px"  data-toggle="tooltip" data-placement="top" title="@item">@item</span>
                                 </a>
                             }
                         }
-                    </div>
-                    <div class="py-2">
-                        Nguồn: @Model.Source
                     </div>
                 </div>
 
@@ -48,7 +45,7 @@
                     </div>
                 </div>
 
-                <h4 class="mt-4"><i class="fa fa-user"></i> Tác giả</h4>
+                <h4 class="mt-4"><i class="fa fa-user"></i> Nhà khoa học</h4>
 
                 @foreach (var item in ViewBag.Authors)
                 {
@@ -77,31 +74,63 @@
                 <div class="form-group">
                     @Model.EffectiveDate?.ToString("dd/MM/yyyy")
                 </div>
-                <label>Người ký</label>
+                <label asp-for="Signer"></label>
                 <div class="form-group">
                     <a href="/admin/searches/signer?signer=@Model.Signer">@Model.Signer</a>
                 </div>
-                <label>Số hiệu / ISNS</label>
+                <label>Số hiệu</label>
                 <div class="form-group">
-                    @Model.Number / @Model.ISSN
+                    @Model.Number
                 </div>
-                <label>Lĩnh vực</label>
+                <label asp-for="CategoryId"></label>
                 <div class="form-group">
-                    <a href="/admin/categories/details/@Model.CategoryId?returnUrl=/admin/topics/details/@Model.TopicId">@Model.Category.Name</a>
+                    <a href="/admin/categories/details/@Model.CategoryId?returnUrl=/admin/topics/details/@Model.TopicId">@Model.Category?.Name</a>
                 </div>
-                <label>Loại văn bản</label>
+                <label asp-for="TopicTypeId"></label>
                 <div class="form-group">
-                        <a href="/admin/searches/topictypes?topictype=@Model.TopicType?.TopicTypeId">@Model.TopicType?.Name</a>
+                    <a href="/admin/searches/topictypes?topictypeId=@Model.TopicType?.TopicTypeId">@Model.TopicType?.Name</a>
                 </div>
                 <label><i class="fa fa-file-archive"></i> Tệp tin đính kèm</label>
                 @if (Model.Attachments.Count > 0)
                 {
-                    <ul>
-                        @foreach (var item in Model.Attachments)
-                        {
-                            <li><a href="/files/@item.Path/@item.Name">@item.Name</a></li>
-                        }
-                    </ul>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Tên file</th>
+                                <th>Thư mục</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Attachments)
+                            {
+                                <tr id="attachment-@item.AttachmentId">
+                                    <td>
+                                        <b class="font-weight-bold" id="file-name-@item.AttachmentId">@item.Name</b>
+                                    </td>
+                                    <td class="font-weight-bold">@item.Path</td>
+                                    <td class="text-right py-0 align-middle">
+                                        <div class="btn-group btn-group-sm">
+                                            <div class="dropdown">
+                                                <button type="button" class="btn btn-sm btn-primary dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-pen"></i></button>
+                                                <div class="dropdown-menu dropdown-menu-right p-3" aria-labelledby="dropdownMenuButton" style="min-width: 300px">
+                                                    <label>Đổi tên tệp tin:</label>
+                                                    <input type="text" placeholder="Nhập tên file" value="@item.Name" class="form-control mb-2" id="new-filename-@item.AttachmentId" />
+                                                    <div class="text-info mb-2"><small><i class="fa fa-info-circle"></i> Lưu ý: Giữ nguyên đuôi và tuân thủ <a href="https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file" target="_blank">nguyên tắc đặt tên</a> file</small></div>
+                                                    <div class="clearfix">
+                                                        <button class="btn btn-primary float-right" type="button" onclick="confirmRename('@item.AttachmentId')">Xác nhận</button>
+                                                        <button class="btn btn-secondary" type="button" onclick="cancelRename(this)">Hủy</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <a href="~/files/@item.Path/@item.Name" target="_blank" class="btn btn-info"><i class="fas fa-eye"></i></a>
+                                            <button type="button" class="btn btn-danger" onclick="deleteFile('@item.Name', '@item.Path', '@item.AttachmentId')"><i class="fas fa-trash"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 }
                 else
                 {
@@ -154,7 +183,6 @@
     </div>
 </div>
 
-@*<partial name="_Topics" />*@
 
 @section scripts {
     <script src="~/lib/select2/js/select2.full.min.js"></script>
@@ -171,6 +199,75 @@
         //Initialize Select2 Elements
         $('#AuthorIds').select2({
             theme: 'bootstrap4'
-        })
+        });
+        function deleteFile(fileName, folder, attachmentId) {
+            if (fileName === '') {
+                return;
+            }
+            bootbox.confirm({
+                message: "Bạn có chắc chắn muốn xóa tệp tin: " + fileName + "?",
+                buttons: {
+                    confirm: {
+                        label: 'Xác nhận',
+                        className: 'btn-danger'
+                    },
+                    cancel: {
+                        label: 'No',
+                        className: 'btn-secondary'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            url: '/admin/topics/RemoveFile',
+                            type: 'POST',
+                            dataType: 'html',
+                            data: {
+                                fileName: fileName,
+                                folder: folder,
+                                attachmentId: attachmentId
+                            }
+                        }).done(function (response) {
+                            if (response) {
+                                $('#attachment-' + attachmentId).remove();
+                                toastr["success"]("Xóa file thành công!");
+                            }
+                            else {
+                                toastr["error"]("Xóa file thất bại!");
+                            }
+                        });
+                    }
+                }
+            });
+        }
+        //================ Rename File==================
+        function cancelRename(e) {
+            $(e.target).dropdown('hide');
+        }
+        function confirmRename(attachmentId) {
+            let fileName = $('#new-filename-' + attachmentId).val();
+            if (fileName === '') {
+                toastr["warning"]("Vui lòng nhập tên tệp tin!");
+            }
+            else {
+                $.ajax({
+                    url: '/admin/topics/RenameFile',
+                    type: 'POST',
+                    dataType: 'html',
+                    data: {
+                        fileName: fileName,
+                        attachmentId: attachmentId
+                    }
+                }).done(function (response) {
+                    if (response !== 'false') {
+                        $('#file-name-' + attachmentId).text(fileName);
+                        toastr["success"]("Đổi tên tệp tin thành công!");
+                    }
+                    else {
+                        toastr["error"]("Đổi tên tệp tin thất bại!");
+                    }
+                });
+            }
+        }
     </script>
 }

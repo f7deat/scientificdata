@@ -18,16 +18,13 @@
             </form>
         </div>
         <table class="table table-bordered mb-3">
-            <thead>
+            <thead class="bg-danger">
                 <tr>
                     <th>
                         Tên tài liệu
                     </th>
-                    <th>
-                        Tác giả
-                    </th>
-                    <th>
-                        Danh mục
+                    <th class="text-truncate">
+                       Người ký/Nhà khoa học
                     </th>
                     @*<th>
                         Tác vụ
@@ -49,9 +46,6 @@
                                     <img src="~/img/profile/@author.Author.Avatar" class="img-circle img-bordered-sm" width="40" height="40" />
                                 </a>
                             }
-                        </td>
-                        <td>
-                            <a href="/admin/categories/details/@item.CategoryId?returnUrl=/admin/searches/tags?tagName=@ViewBag.Title">@item.Category?.Name</a>
                         </td>
                     </tr>
                 }

@@ -24,7 +24,7 @@
                         Tên tài liệu
                     </th>
                     <th>
-                        Tác giả
+                        Nhà khoa học
                     </th>
                     <th>
                         Danh mục
@@ -65,10 +65,10 @@
         }
 
 
-        <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex - 1)" class="btn btn-secondary btn-sm @prevDisabled shadow">
+        <a asp-action="signer" asp-route-signer="@ViewData["Title"]" asp-route-pageIndex="@(Model.PageIndex - 1)" class="btn btn-secondary btn-sm @prevDisabled shadow">
             <i class="fa fa-angle-double-left"></i> Trang trước
         </a>
-        <a asp-action="Index" asp-route-pageIndex="@(Model.PageIndex + 1)" class="btn btn-secondary btn-sm float-right @nextDisabled shadow">
+        <a asp-action="signer" asp-route-signer="@ViewData["Title"]" asp-route-pageIndex="@(Model.PageIndex + 1)" class="btn btn-secondary btn-sm float-right @nextDisabled shadow">
             Trang sau <i class="fa fa-angle-double-right"></i>
         </a>
 

@@ -3,7 +3,10 @@
     ViewData["Title"] = "Tra cứu";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
-
+<link href="~/lib/daterangepicker/daterangepicker.css" rel="stylesheet" />
+<link href="~/lib/daterangepicker/bootstrap-daterangepicker.css" rel="stylesheet" />
+<link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
+<link href="~/lib/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" />
 <div class="row">
     <div class="col-md-3">
         <div class="card">
@@ -28,14 +31,17 @@
                     </li>
                 </ul>
                 <ul class="list-group mt-2">
-                    <li class="list-group-item active">Loại văn bản</li>
+                    <li class="list-group-item active">Loại tài liệu</li>
                     @foreach (var item in ViewBag.TopicTypes)
                     {
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <a href="/admin/searches/topictypes?topicType=@item.TopicTypeId">@item.Name</a>
+                            <a href="/admin/searches/topictypes?topicTypeId=@item.TopicTypeId">@item.Name</a>
                             <span class="badge badge-danger badge-pill">@item.Topics.Count</span>
                         </li>
                     }
+                    <li class="list-group-item">
+                        <a href="/admin/topictypes">Xem thêm...</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -49,31 +55,25 @@
             <div class="card-body">
                 <form action="/admin/searches/index" method="get">
                     <div class="row">
-                        <div class="col-md-8">
+                        <div class="col-md-12">
                             <label>Nhập từ khóa</label>
-                            <input type="text" class="form-control mb-3" name="searchTerm" value="@ViewBag.SearchTerm" placeholder="Tiêu đề, mô tả, nội dung,..."/>
+                            <input type="text" class="form-control mb-3" name="searchTerm" value="@ViewBag.SearchTerm" placeholder="Tiêu đề, mô tả, nội dung,..." autocomplete="off" />
                         </div>
                         <div class="col-md-4">
-                            <label>Đơn vị</label>
-                            <select class="form-control mb-3" asp-items="ViewBag.DepartmentsSelect" name="Department">
+                            <label>Loại tài liệu</label>
+                            <select name="topicTypeId" class="form-control mb-3" asp-items="ViewBag.TopicTypesSelect">
                                 <option value="">-- Tùy chọn --</option>
                             </select>
                         </div>
                         <div class="col-md-4">
                             <label>Loại văn bản</label>
-                            <select name="TopicType" class="form-control mb-3" asp-items="ViewBag.TopicTypesSelect">
-                                <option value="">-- Tùy chọn --</option>
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label>Lĩnh vực</label>
                             <select class="form-control mb-3" asp-items="ViewBag.CategoriesSelect" name="Category">
                                 <option value="">-- Tùy chọn --</option>
                             </select>
                         </div>
                         <div class="col-md-3">
                             <label>Số hiệu</label>
-                            <input type="text" class="form-control mb-3" name="Number" value="@ViewBag.Number" />
+                            <input type="text" class="form-control mb-3" name="Number" value="@ViewBag.Number" autocomplete="off" />
                         </div>
                         <div class="col-md-1">
                             <label>Năm</label>
@@ -81,7 +81,16 @@
                                 <option value="">--</option>
                             </select>
                         </div>
-
+                        <div class="col-md-8">
+                            <label>Nhà khoa học</label>
+                            <select class="form-control" name="Authorids" id="AuthorIds" asp-items="ViewBag.Authors" multiple="multiple"></select>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Đơn vị</label>
+                            <select class="form-control mb-3" asp-items="ViewBag.DepartmentsSelect" name="Department">
+                                <option value="">-- Tùy chọn --</option>
+                            </select>
+                        </div>
                     </div>
                     <button type="submit" class="btn btn-danger"><i class="fa fa-search"></i> Tìm kiếm</button>
                     <a href="/admin/searches" class="btn btn-secondary"><i class="fa fa-redo"></i> Hủy</a>
@@ -96,12 +105,19 @@
                 </div>
             </div>
             <div class="card-body">
-                <table class="table table-bordered table-striped table-hover table-responsive mb-3">
+                <button id="reportrange" class="btn btn-light border rounded mb-3" type="button">
+                    <i class="fa fa-calendar"></i>&nbsp;
+                    <span> Lọc theo ngày</span> <i class="fa fa-caret-down"></i>
+                </button>
+                <button type="button" onclick="filterByDate();" class="btn btn-primary mb-3">
+                    <i class="fa fa-filter"></i> Lọc
+                </button>
+                <table class="table table-bordered table-striped table-hover mb-3 w-100">
                     <thead>
                         <tr>
-                            <th>Số hiệu</th>
+                            <th class="text-truncate">Số hiệu</th>
                             <th>Tiêu đề</th>
-                            <th>Ngày phát hành</th>
+                            <th class="text-truncate">Ngày phát hành</th>
                             <th>File</th>
                         </tr>
                     </thead>
@@ -109,7 +125,7 @@
                         @foreach (var item in Model)
                         {
                             <tr>
-                                <td>@item.Number</td>
+                                <td class="text-truncate">@item.Number</td>
                                 <td>
                                     <a href="/admin/topics/details/@item.TopicId?returnUrl=/admin/searches"><b>@item.Name</b></a>
                                     <div class="text-muted">
@@ -129,7 +145,7 @@
                                             @foreach (var tag in item.Tags.Split(",", StringSplitOptions.RemoveEmptyEntries))
                                             {
                                                 <a href="/admin/searches/tags?tagName=@tag&returnUrl=/admin/searches/tags&tagName">
-                                                    <span class="badge badge-dark">@tag</span>
+                                                    <span class="badge badge-dark text-truncate" style="max-width: 100px" data-toggle="tooltip" data-placement="top" title="@tag">@tag</span>
                                                 </a>
                                             }
                                         }
@@ -149,7 +165,7 @@
                                             <div class="dropdown-menu dropdown-menu-lg-right">
                                                 @foreach (var file in item.Attachments)
                                                 {
-                                                    <a href="~/files/@file.Path/@file.Name" class="dropdown-item"><i class="fa fa-dot-circle"></i> @file.Name</a>
+                                                    <a href="~/files/@file.Path/@file.Name" class="dropdown-item" target="_blank"><i class="fa fa-eye text-muted"></i> @file.Name</a>
                                                 }
                                             </div>
                                         </div>
@@ -177,6 +193,9 @@
                    asp-route-category="@ViewBag.Category"
                    asp-route-topicType="@ViewBag.TopicType"
                    asp-route-number="@ViewBag.Number"
+                   asp-route-year="@ViewBag.Year"
+                   asp-route-fromDate="@ViewBag.FromDate"
+                   asp-route-toDate="@ViewBag.ToDate"
                    class="btn btn-secondary btn-sm @prevDisabled shadow">
                     <i class="fa fa-angle-double-left"></i> Trang trước
                 </a>
@@ -187,6 +206,9 @@
                    asp-route-category="@ViewBag.Category"
                    asp-route-topicType="@ViewBag.TopicType"
                    asp-route-number="@ViewBag.Number"
+                   asp-route-year="@ViewBag.Year"
+                   asp-route-fromDate="@ViewBag.FromDate"
+                   asp-route-toDate="@ViewBag.ToDate"
                    class="btn btn-secondary btn-sm float-right @nextDisabled shadow">
                     Trang sau <i class="fa fa-angle-double-right"></i>
                 </a>
@@ -194,11 +216,82 @@
         </div>
     </div>
 </div>
+<input type="hidden" id="fromDate" />
+<input type="hidden" id="toDate" />
 
 @section scripts {
+    <script src="~/lib/daterangepicker/moment.min.js"></script>
+    <script src="~/lib/daterangepicker/daterangepicker.js"></script>
+    <script src="~/lib/select2/js/select2.full.min.js"></script>
     <script>
         $(function () {
             $('[data-toggle="tooltip"]').tooltip()
+        });
+        $(function () {
+
+            var start = moment().subtract(1, 'days');
+            var end = moment();
+
+            function cb(start, end) {
+                $('#reportrange span').html(start.format('DD-MM-YYYY') + ' - ' + end.format('DD-MM-YYYY'));
+            }
+
+            $('#reportrange').daterangepicker({
+                startDate: start,
+                endDate: end,
+                ranges: {
+                    'Hôm nay': [moment(), moment()],
+                    'Hôm qua': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Tuần trước': [moment().subtract(6, 'days'), moment()],
+                    '30 ngày qua': [moment().subtract(29, 'days'), moment()],
+                    'Tháng này': [moment().startOf('month'), moment().endOf('month')],
+                    'Tháng trước': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                },
+                customRangeLabel: 'Tùy chọn',
+                locale: {
+                    daysOfWeek: [
+                        "T2",
+                        "T3",
+                        "T4",
+                        "T5",
+                        "T6",
+                        "T7",
+                        "CN"
+                    ],
+                    monthNames: [
+                        "Tháng 1",
+                        "Tháng 2",
+                        "Tháng 3",
+                        "Tháng 4",
+                        "Tháng 5",
+                        "Tháng 6",
+                        "Tháng 7",
+                        "Tháng 8",
+                        "Tháng 9",
+                        "Tháng 10",
+                        "Tháng 11",
+                        "Tháng 12"
+                    ]
+                },
+                maxDate: moment()
+            }, function (start, end, label) {
+                    $('#fromDate').val(start.format('YYYY-MM-DD'));
+                    $('#toDate').val(end.format('YYYY-MM-DD'));
+                cb(start, end);
+            }, cb);
+
+        });
+
+        //
+        function filterByDate() {
+            let fromDate = $('#fromDate').val();
+            let toDate = $('#toDate').val();
+            window.location.href = '/admin/searches?searchTerm=@ViewBag.SearchTerm&department=@ViewBag.Department&category=@ViewBag.Category&topicType=@ViewBag.TopicType&number=@ViewBag.Number&fromDate=' + fromDate + '&toDate=' + toDate;
+        }
+
+        //Initialize Select2 Elements
+        $('#AuthorIds').select2({
+            theme: 'bootstrap4'
         })
     </script>
 }

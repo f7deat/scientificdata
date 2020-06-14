@@ -1,0 +1,69 @@
+﻿@model Microsoft.AspNetCore.Identity.IdentityUser
+@{
+    ViewData["Title"] = Model.Email;
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fab fa-react"></i>Thông tin <b>@ViewData["Title"]</b></h3>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Email:
+                        <span class="font-weight-bold">@Model.Email</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Username:
+                        <span class="font-weight-bold">@Model.UserName</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        SDT:
+                        <span class="font-weight-bold">@Model.PhoneNumber</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header d-flex p-0">
+                <h3 class="card-title p-3">Chỉnh sửa</h3>
+                <ul class="nav nav-pills ml-auto p-2">
+                    <li class="nav-item"><a class="nav-link active" href="#tab_1" data-toggle="tab">Thông tin cá nhân</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#tab_2" data-toggle="tab">Mật khẩu</a></li>
+                </ul>
+            </div><!-- /.card-header -->
+            <div class="card-body">
+                <div class="tab-content">
+                    <div class="tab-pane active" id="tab_1">
+                        <form action="/admin/users/EditInfo" method="post">
+                            <input type="hidden" value="@Model.Email" name="email"/>
+                            <label>Số điện thoại</label>
+                            <input type="text" name="PhoneNumber" value="@Model.PhoneNumber" class="form-control mb-2" required />
+                            <button class="btn btn-primary" type="submit">Xác nhận</button>
+                        </form>
+                    </div>
+                    <!-- /.tab-pane -->
+                    <div class="tab-pane" id="tab_2">
+                        <div class="text-info mb-2"><small><i class="fa fa-info"></i> Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt. Tối thiểu 6 ký tự.</small></div>
+                        <form action="/admin/users/editpassword" method="post">
+                            <input type="hidden" value="@Model.Email" name="email" />
+                            <label>Mật khẩu</label>
+                            <input type="password" name="Password" value="" class="form-control mb-2" required/>
+                            <label>Nhập lại mật khẩu</label>
+                            <input type="password" name="ConfirmPassword" value="" class="form-control mb-2" required/>
+                            <button class="btn btn-primary" type="submit">Xác nhận</button>
+                        </form>
+                    </div>
+                    <!-- /.tab-pane -->
+                </div>
+                <!-- /.tab-content -->
+            </div><!-- /.card-body -->
+        </div>
+    </div>
+</div>
+

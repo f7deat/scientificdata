@@ -12,6 +12,8 @@ using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using ApplicationCore.Helper;
 using Microsoft.AspNetCore.Authorization;
+using ApplicationCore.Interfaces;
+using WebUI.Areas.Admin.Models.Enum;
 
 namespace WebUI.Areas.Admin.Controllers
 {
@@ -20,24 +22,93 @@ namespace WebUI.Areas.Admin.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly ILogService _logService;
 
-        public AuthorsController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
+        public AuthorsController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment, ILogService logService)
         {
             _context = context;
+            _logService = logService;
             _webHostEnvironment = webHostEnvironment;
         }
 
         [Authorize]
-        public async Task<IActionResult> Index(string searchTerm, int? pageIndex)
+        public async Task<IActionResult> Index(string searchTerm, int state, int? pageIndex, string orderBy, int? orderType, ViewStyle viewStyle = ViewStyle.Large)
         {
+            ViewBag.OrderType = orderType ?? 1;
+            var authors = _context.Authors.OrderByDescending(x => x.Order).ThenBy(x => x.Name).Include(a => a.Department).AsQueryable();
             if (!string.IsNullOrEmpty(searchTerm))
             {
-                return View(await PaginatedList<Author>.CreateAsync(_context.Authors.Where(x => x.Name.Contains(searchTerm) ||
-                x.PhoneNumber.Contains(searchTerm) || x.Email.Contains(searchTerm)), pageIndex ?? 1, 10));
+                ViewBag.SearchTerm = searchTerm;
+                searchTerm = searchTerm.ToLower();
+                if (state == 1)
+                {
+                    authors = authors.Where(x => x.Name.ToLower().Contains(searchTerm));
+                }
+                else if (state == 2)
+                {
+                    authors = authors.Where(x => x.Deparment.ToLower().Contains(searchTerm));
+                }
+                else if (state == 3)
+                {
+                    authors = authors.Where(x => x.Specialized.ToLower().Contains(searchTerm));
+                }
+                else
+                {
+                    authors = authors.Where(x => x.Name.ToLower().Contains(searchTerm)
+                    || x.Deparment.ToLower().Contains(searchTerm)
+                    || x.Specialized.ToLower().Contains(searchTerm)
+                    || x.PhoneNumber.Contains(searchTerm)
+                    || x.Email.ToLower().Contains(searchTerm));
+                }
+            }
+            if (!string.IsNullOrEmpty(orderBy) && orderType != null)
+            {
+                if (orderBy.ToLower().Equals("department") && orderType == 1)
+                {
+                    authors = authors.OrderBy(x => x.Deparment);
+                }
+                else
+                {
+                    authors = authors.OrderByDescending(x => x.Deparment);
+                }
+                ViewBag.OrderBy = orderBy;
             }
 
-            var applicationDbContext = _context.Authors.Include(a => a.Department);
-            return View(await PaginatedList<Author>.CreateAsync(applicationDbContext, pageIndex ?? 1, 10));
+            var searchTypes = new List<dynamic>
+            {
+                new { Id = 0, Name = "Từ khóa bất kỳ" },
+                new { Id = 1, Name = "Tên nhà khoa học" },
+                new { Id = 2, Name = "Đơn vị công tác" },
+                new { Id = 3, Name = "Chuyên ngành" }
+            };
+
+            ViewData["SearchType"] = new SelectList(searchTypes, "Id", "Name", state);
+            ViewBag.ViewStyle = viewStyle;
+
+            return View(await PaginatedList<Author>.CreateAsync(authors, pageIndex ?? 1, 9));
+        }
+        [Authorize(Roles = "manager")]
+        public async Task<IActionResult> ReOrder(int authorId, EReOrder reOrder, ViewStyle viewStyle)
+        {
+            var author = await _context.Authors.FindAsync(authorId);
+            if (author.Order == null)
+            {
+                author.Order = 0;
+            }
+            if (reOrder == EReOrder.Down)
+            {
+                author.Order -= 1;
+            }
+            else if (reOrder == EReOrder.Up)
+            {
+                author.Order += 1;
+            }
+            if (author.Order < 0)
+            {
+                author.Order = null;
+            }
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index), new { viewStyle });
         }
 
         [Authorize]
@@ -55,7 +126,7 @@ namespace WebUI.Areas.Admin.Controllers
                 return NotFound();
             }
             ViewBag.PageIndex = pageIndex ?? 1;
-            ViewBag.Topics = await _context.AuthorTopics.Include(x => x.Topic).Where(x => x.AuthorId == id).OrderByDescending(x=>x.TopicId).Skip(((pageIndex ?? 1) - 1) * 5).Take(5).ToListAsync();
+            ViewBag.Topics = await _context.AuthorTopics.Include(x => x.Topic).Where(x => x.AuthorId == id).OrderByDescending(x => x.TopicId).Skip(((pageIndex ?? 1) - 1) * 5).Take(5).ToListAsync();
             ViewBag.ReturnUrl = returnUrl;
             ViewBag.Id = id;
             ViewBag.Total = await _context.AuthorTopics.Where(x => x.AuthorId == id).CountAsync();
@@ -136,7 +207,7 @@ namespace WebUI.Areas.Admin.Controllers
                     if (AvatarFile != null)
                     {
                         var path = Path.Combine(_webHostEnvironment.WebRootPath, "img/profile", author.Avatar);
-                        if (System.IO.File.Exists(path))
+                        if (System.IO.File.Exists(path) && author.Avatar != "default.jpg")
                         {
                             System.IO.File.Delete(path);
                         }
@@ -181,14 +252,14 @@ namespace WebUI.Areas.Admin.Controllers
         [Authorize(Roles = "manager")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.AuthorTopics.Any(x=>x.AuthorId == id))
+            if (_context.AuthorTopics.Any(x => x.AuthorId == id))
             {
-                TempData["Info"] = "toastr[\"error\"](\"Tác giả này đang có bài viết được xuất bản, bạn cần xóa tác giả này khỏi tất cả bài viết!\")";
+                TempData["Info"] = "toastr[\"error\"](\"Nhà khoa học này đang có bài viết được xuất bản, bạn cần xóa Nhà khoa học này khỏi tất cả bài viết!\")";
             }
             else
             {
                 var author = await _context.Authors.FindAsync(id);
-                if (!string.IsNullOrEmpty(author.Avatar))
+                if (!string.IsNullOrEmpty(author.Avatar) && author.Avatar != "default.jpg")
                 {
                     var path = Path.Combine(_webHostEnvironment.WebRootPath, "img/profile", author.Avatar);
                     if (System.IO.File.Exists(path))
@@ -198,13 +269,15 @@ namespace WebUI.Areas.Admin.Controllers
                 }
                 _context.Authors.Remove(author);
                 await _context.SaveChangesAsync();
-                TempData["Info"] = "toastr[\"success\"](\"Xóa tác giả thành công!\")";
+                TempData["Info"] = "toastr[\"success\"](\"Xóa Nhà khoa học thành công!\")";
+                await _logService.Write(LogType.Info, string.Format("Xóa nhà khoa học: {0}", author.Name));
             }
 
             return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
+        [Authorize(Roles = "manager")]
         public async Task<JsonResult> RemoveAvatarAsync(int? id)
         {
             if (id == null)
@@ -212,7 +285,7 @@ namespace WebUI.Areas.Admin.Controllers
                 return Json(false);
             }
             var author = await _context.Authors.FindAsync(id);
-            if (!string.IsNullOrEmpty(author.Avatar))
+            if (!string.IsNullOrEmpty(author.Avatar) && author.Avatar != "default.jpg")
             {
                 var path = Path.Combine(_webHostEnvironment.WebRootPath, "img/profile", author.Avatar);
                 if (System.IO.File.Exists(path))
@@ -224,6 +297,33 @@ namespace WebUI.Areas.Admin.Controllers
             _context.Authors.Update(author);
             await _context.SaveChangesAsync();
             return Json(true);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "manager")]
+        public JsonResult QuickCreate(Author author)
+        {
+            if (!string.IsNullOrEmpty(author.Name))
+            {
+                var item = new Author
+                {
+                    Name = author.Name,
+                    Gender = author.Gender,
+                    DateOfBirth = author.DateOfBirth,
+                    CreatedDate = DateTime.Now,
+                    ModifiedDate = DateTime.Now,
+                    AcademicRank = author.AcademicRank,
+                    Degree = author.Degree,
+                    Deparment = author.Deparment,
+                    Specialized = author.Specialized,
+                    Avatar = "default.jpg"
+                };
+                _context.Authors.Add(item);
+                _context.SaveChanges();
+                return Json(item.AuthorId);
+            }
+            _logService.Write(LogType.Warning, "Thêm nhanh thất bại, tên nhà khoa học đang để trống");
+            return Json(-1);
         }
 
         private bool AuthorExists(int id)

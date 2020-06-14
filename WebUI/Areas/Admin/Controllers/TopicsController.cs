@@ -36,8 +36,6 @@ namespace WebUI.Areas.Admin.Controllers
         public async Task<IActionResult> Index(int? pageIndex,
                                                 string searchTerm)
         {
-            //ViewBag.Authors = new SelectList(_context.Authors, "AuthorId", "Name");
-            //ViewBag.Categories = await _context.Categories.ToListAsync();
             ViewBag.SearchTerm = searchTerm;
             var topics = _context.Topics;
             if (!string.IsNullOrEmpty(searchTerm))
@@ -46,7 +44,7 @@ namespace WebUI.Areas.Admin.Controllers
                 return View(await PaginatedList<Topic>.CreateAsync(_context.Topics.Include(x => x.AuthorTopics)
                         .Include(x => x.Category)
                         .Where(x => x.Name.Contains(searchTerm))
-                        .OrderByDescending(x => x.ModifiedDate), pageIndex ?? 1, 10));
+                        .OrderByDescending(x => x.CreatedDate), pageIndex ?? 1, 10));
             }
 
             return View(await PaginatedList<Topic>.CreateAsync(_context.Topics.Include(x => x.AuthorTopics).Include(x => x.Category).OrderByDescending(x => x.ModifiedDate), pageIndex ?? 1, 10));
@@ -60,7 +58,7 @@ namespace WebUI.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var topic = await _context.Topics.Include(x=>x.Attachments).Include(x=>x.TopicType)
+            var topic = await _context.Topics.Include(x => x.Attachments).Include(x => x.TopicType)
                 .FirstOrDefaultAsync(m => m.TopicId == id);
             if (topic == null)
             {
@@ -113,7 +111,8 @@ namespace WebUI.Areas.Admin.Controllers
                             Source = topicViewModel.Source,
                             ISSN = topicViewModel.ISSN,
                             Page = topicViewModel.Page,
-                            UserId = User.Identity.Name
+                            UserId = User.Identity.Name,
+                            Scientist = topicViewModel.Scientist
                         };
 
                         _context.Topics.Add(topic);
@@ -185,7 +184,7 @@ namespace WebUI.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            var topic = await _context.Topics.Include(x => x.AuthorTopics).Include(x=>x.Attachments).FirstOrDefaultAsync(x => x.TopicId == id);
+            var topic = await _context.Topics.Include(x => x.AuthorTopics).Include(x => x.Attachments).FirstOrDefaultAsync(x => x.TopicId == id);
             if (topic == null)
             {
                 return NotFound();
@@ -212,7 +211,8 @@ namespace WebUI.Areas.Admin.Controllers
                 Source = topic.Source,
                 ISSN = topic.ISSN,
                 Page = topic.Page,
-                Attachments = topic.Attachments
+                Attachments = topic.Attachments,
+                Scientist = topic.Scientist
             };
 
             ViewData["Departments"] = new SelectList(_context.Departments, "DepartmentId", "Name");
@@ -264,7 +264,8 @@ namespace WebUI.Areas.Admin.Controllers
                             ISSN = topicViewModel.ISSN,
                             Page = topicViewModel.Page,
                             Tags = topicViewModel.Tags,
-                            Number = topicViewModel.Number
+                            Number = topicViewModel.Number,
+                            Scientist = topicViewModel.Scientist
                         };
 
                         if (attachmentFiles?.Count > 0)
@@ -331,7 +332,7 @@ namespace WebUI.Areas.Admin.Controllers
         [Authorize(Roles = "manager")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var topic = await _context.Topics.Include(x=>x.Attachments).FirstOrDefaultAsync(x=>x.TopicId == id);
+            var topic = await _context.Topics.Include(x => x.Attachments).FirstOrDefaultAsync(x => x.TopicId == id);
 
             if (topic.Attachments.Count > 0)
             {
@@ -342,6 +343,11 @@ namespace WebUI.Areas.Admin.Controllers
                     {
                         System.IO.File.Delete(path);
                     }
+                    else
+                    {
+                        await _logService.Write(LogType.Warning, string.Format($"File đính kèm: {item.Name} không tồn tại trên hệ thống"));
+                    }
+                    _context.Attachments.Remove(item);
                 }
             }
 
@@ -379,6 +385,35 @@ namespace WebUI.Areas.Admin.Controllers
                 await _logService.Write(LogType.Exception, ex.Message);
                 return Json(false);
             }
+        }
+        [HttpPost]
+        [Authorize(Roles = "manager")]
+        public async Task<JsonResult> RenameFile(Guid attachmentId, string fileName)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(fileName) && fileName.Contains("."))
+                {
+                    var attachment = await _context.Attachments.FirstOrDefaultAsync(x => x.AttachmentId == attachmentId);
+                    var path = Path.Combine(_webHostEnvironment.WebRootPath, "files\\" + attachment.Path);
+                    if (System.IO.File.Exists(path + "\\" + attachment.Name))
+                    {
+                        System.IO.File.Move(path + "\\" + attachment.Name, path + "\\" + fileName);
+                        attachment.Name = fileName;
+                        await _context.SaveChangesAsync();
+                        return Json(true);
+                    }
+                    else
+                    {
+                        await _logService.Write(LogType.Warning, "File không tồn tại trong hệ thống: " + fileName);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await _logService.Write(LogType.Exception, ex.Message);
+            }
+            return Json(false);
         }
 
         private bool TopicExists(int id)

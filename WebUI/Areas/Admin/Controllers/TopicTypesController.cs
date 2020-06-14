@@ -7,26 +7,29 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ApplicationCore.Entities;
 using Infrastructure.Data;
+using Microsoft.AspNetCore.Authorization;
+using ApplicationCore.Interfaces;
 
 namespace WebUI.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize]
     public class TopicTypesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogService _logService;
 
-        public TopicTypesController(ApplicationDbContext context)
+        public TopicTypesController(ApplicationDbContext context, ILogService logService)
         {
             _context = context;
+            _logService = logService;
         }
 
-        // GET: Admin/TopicTypes
         public async Task<IActionResult> Index()
         {
             return View(await _context.TopicTypes.ToListAsync());
         }
 
-        // GET: Admin/TopicTypes/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -36,7 +39,9 @@ namespace WebUI.Areas.Admin.Controllers
 
             var topicType = await _context.TopicTypes
                 .FirstOrDefaultAsync(m => m.TopicTypeId == id);
-            ViewData["Title"] = topicType.Name;
+            ViewData["Title"] = topicType?.Name;
+            ViewData["Description"] = topicType.Description;
+            ViewData["Id"] = topicType.TopicTypeId;
 
             var topics = await _context.Topics.Where(x=>x.TopicTypeId == id).ToListAsync();
 
@@ -48,13 +53,14 @@ namespace WebUI.Areas.Admin.Controllers
             return View(topics);
         }
 
-        // GET: Admin/TopicTypes/Create
+        [Authorize(Roles = "manager")]
         public IActionResult Create()
         {
             return View();
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "manager")]
         public async Task<IActionResult> Create(TopicType topicType)
         {
             if (ModelState.IsValid)
@@ -67,7 +73,7 @@ namespace WebUI.Areas.Admin.Controllers
             return View(topicType);
         }
 
-        // GET: Admin/TopicTypes/Edit/5
+        [Authorize(Roles = "manager")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -84,6 +90,7 @@ namespace WebUI.Areas.Admin.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "manager")]
         public async Task<IActionResult> Edit(int id, TopicType topicType)
         {
             if (id != topicType.TopicTypeId)
@@ -114,8 +121,28 @@ namespace WebUI.Areas.Admin.Controllers
             return View(topicType);
         }
 
+        [HttpPost]
+        [Authorize(Roles = "manager")]
+        public JsonResult QuickCreate(string name, string description)
+        {
+            if (!string.IsNullOrEmpty(name))
+            {
+                var topicType = new TopicType
+                {
+                    Name = name,
+                    Description = description
+                };
+                _context.TopicTypes.Add(topicType);
+                _context.SaveChanges();
+                return Json(topicType.TopicTypeId);
+            }
+            _logService.Write(LogType.Warning, "Thêm nhanh thất bại, tên loại văn bản đang để trống");
+            return Json(-1);
+        }
+
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "manager")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (await _context.Topics.AnyAsync(x=>x.TopicTypeId == id))

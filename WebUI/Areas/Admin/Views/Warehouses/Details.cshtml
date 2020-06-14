@@ -1,40 +1,112 @@
-﻿@model ApplicationCore.Entities.Warehouse
+﻿@model IEnumerable<ApplicationCore.Entities.Topic>
 
 @{
-    ViewData["Title"] = "Details";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
-
-<h1>Details</h1>
-
-<div>
-    <h4>Warehouse</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Symbol)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Symbol)
-        </dd>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Category)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Category.CategoryId)
-        </dd>
-    </dl>
+<style>
+    .select2-container .select2-selection--single {
+        height: 40px !important;
+    }
+</style>
+<link href="~/lib/select2/css/select2.min.css" rel="stylesheet" />
+<link href="~/lib/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" />
+<div class="card d-none" id="add-doc">
+    <div class="card-header">
+        <button type="button" onclick="toggleAdd()" class="btn btn-outline-success btn-sm float-right"><i class="fa fa-times"></i> Đóng</button>
+        <h3 class="card-title"><i class="fab fa-react"></i> Thêm tài liệu vào tuyển tập</h3>
+    </div>
+    <div class="card-body">
+        <div class="mb-2 text-info"><small><i class="fa fa-info-circle"></i> Bạn cần thêm tài liệu trước khi có thể thêm vào tuyển tập</small></div>
+        <form action="/admin/warehouses/AddTopic" method="post">
+            <div class="form-group mx-sm-3 mb-2">
+                <input type="hidden" value="@ViewBag.WarehouseId" name="WarehouseId" />
+                <select class="form-control mb-2" placeholder="Nhập tên tài liệu" id="topics" name="topicId"></select>
+                <button type="submit" class="btn btn-primary mt-4">Thêm</button>
+            </div>
+        </form>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model.WarehouseId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="card">
+    <div class="card-header">
+        <button type="button" onclick="toggleAdd()" class="btn btn-outline-danger btn-sm float-right"><i class="fa fa-plus"></i> Thêm tài liệu</button>
+        <h3 class="card-title"><i class="fab fa-react"></i> @ViewData["Title"]</h3>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered mb-3 dataTable">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Name)
+                    </th>
+                    <th>Ngày xuất bản</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="font-weight-bold"><a href="/admin/topics/details/@item.TopicId">@Html.DisplayFor(modelItem => item.Name)</a></div>
+                            <div class="text-muted">@item.Description</div>
+                        </td>
+                        <td>
+                            @item.PublishDate?.ToString("dd/MM/yyyy")
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-whatever="@item.TopicId">
+                                <i class="fa fa-trash"></i> Xóa
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="DeleteTopic" method="post">
+                <div class="modal-body">
+                    <input type="hidden" name="TopicId" id="IdTopic"/>
+                    <input type="hidden" value="@ViewBag.WarehouseId" name="WarehouseId" />
+                    <div class="text-info">Tài liệu này sẽ bị loại bỏ khỏi tuyển tập</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-danger">Xóa</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="~/lib/select2/js/select2.full.min.js"></script>
+    <script>
+        $('#deleteModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget)
+            var recipient = button.data('whatever')
+            var modal = $(this)
+            modal.find('#IdTopic').val(recipient)
+        });
+        $('#topics').select2({
+            ajax: {
+                url: '/admin/warehouses/gettopics',
+                dataType: 'json'
+            }
+        });
+        // add
+        function toggleAdd() {
+            $('#add-doc').toggleClass('d-none');
+        }
+    </script>
+}

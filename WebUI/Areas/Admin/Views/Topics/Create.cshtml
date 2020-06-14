@@ -9,6 +9,11 @@
 <link href="~/lib/summernote/summernote-bs4.css" rel="stylesheet" />
 <link href="~/lib/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet" />
 <link href="~/lib/toastr/toastr.css" rel="stylesheet" />
+<style>
+    .note-editable {
+        min-height: 475px!important;
+    }
+</style>
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">@ViewData["Title"]</h3>
@@ -26,7 +31,7 @@
                         <span asp-validation-for="Number" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label class="control-label">Tên tài liệu <font color="red">*</font></label>
+                        <label asp-for="Name" class="control-label"></label>
                         <input asp-for="Name" class="form-control" required />
                         <span asp-validation-for="Name" class="text-danger"></span>
                     </div>
@@ -39,17 +44,6 @@
                         <label class="control-label">Nội dung</label>
                         <textarea asp-for="Content" class="form-control"></textarea>
                         <span asp-validation-for="Content" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="control-label">Tác giả</label>
-                        <select class="form-control" name="Authorids" id="AuthorIds" asp-items="ViewBag.Authors" multiple="multiple">
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="Source" class="control-label"></label>
-                        <input asp-for="Source" class="form-control" />
-                        <span asp-validation-for="Source" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -89,9 +83,12 @@
                         </div>
                         <span asp-validation-for="DepartmentId" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="TopicTypeId" class="control-label"></label>
+                    <label asp-for="TopicTypeId" class="control-label"></label>
+                    <div class="input-group mb-3">
                         <select asp-for="TopicTypeId" class="form-control" asp-items="ViewBag.TopicTypes"></select>
+                        <div class="input-group-append">
+                            <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#topic-type-modal"><i class="fa fa-plus-circle"></i></button>
+                        </div>
                         <span asp-validation-for="TopicTypeId" class="text-danger"></span>
                     </div>
                     <div class="form-group">
@@ -99,21 +96,18 @@
                         <input asp-for="Signer" class="form-control" />
                         <span asp-validation-for="Signer" class="text-danger"></span>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="ISSN" class="control-label"></label>
-                                <input asp-for="ISSN" class="form-control" />
-                                <span asp-validation-for="ISSN" class="text-danger"></span>
-                            </div>
+                    <label asp-for="AuthorIds" class="control-label"></label>
+                    <div class="input-group mb-3">
+                        <select class="form-control" name="Authorids" id="AuthorIds" asp-items="ViewBag.Authors" multiple="multiple"></select>
+                        <div class="input-group-append">
+                            <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#AuthorModal"><i class="fa fa-plus-circle"></i></button>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label asp-for="Page" class="control-label"></label>
-                                <input asp-for="Page" class="form-control" />
-                                <span asp-validation-for="Page" class="text-danger"></span>
-                            </div>
-                        </div>
+                        <span asp-validation-for="AuthorIds" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Page" class="control-label"></label>
+                        <input asp-for="Page" class="form-control" />
+                        <span asp-validation-for="Page" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label asp-for="Tags" class="control-label"></label>
@@ -122,7 +116,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="exampleInputFile">Tệp tin đính kèm</label>
+                        <label for="exampleInputFile">Tệp tin đính kèm <small><a data-toggle="tooltip" data-placement="top" title="Có thể thêm một lúc nhiều file" id="file-helper"><i class="fas fa-info-circle text-info"></i></a></small></label>
                         <div class="input-group">
                             <div class="custom-file">
                                 <input type="file" class="custom-file-input" id="attachmentFiles" name="attachmentFiles" multiple="multiple">
@@ -142,6 +136,29 @@
     </div>
 </div>
 
+<div class="modal fade" id="topic-type-modal" tabindex="-1" role="dialog" aria-labelledby="topic-type-modal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="topic-type-modal-label">Thêm loại tài liệu</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label>Tên loại tài liệu</label>
+                <input type="text" id="TopicTypeName" class="form-control mb-3" required />
+                <label>Mô tả</label>
+                <textarea id="TopicTypeDescription" class="form-control mb-3"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-danger" onclick="addTopicType()">Thêm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="DepartmentModal" tabindex="-1" role="dialog" aria-labelledby="DepartmentModal" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -153,7 +170,7 @@
             </div>
             <div class="modal-body">
                 <label>Tên đơn vị</label>
-                <input type="text" id="DepartmentName" class="form-control mb-3" />
+                <input type="text" id="DepartmentName" class="form-control mb-3" required />
                 <label>Mô tả</label>
                 <textarea id="DeparmentDescription" class="form-control mb-3"></textarea>
             </div>
@@ -169,14 +186,14 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="CategoryModalLabel">Thêm lĩnh vực</h5>
+                <h5 class="modal-title" id="CategoryModalLabel">Thêm loại văn bản</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <label>Tên lĩnh vực</label>
-                <input type="text" id="CategoryName" class="form-control mb-3" />
+                <label>Tên loại văn bản</label>
+                <input type="text" id="CategoryName" class="form-control mb-3" required />
                 <label>Mô tả</label>
                 <textarea id="CategoryDescription" class="form-control mb-3"></textarea>
             </div>
@@ -188,8 +205,64 @@
     </div>
 </div>
 
+
+<div class="modal fade" id="AuthorModal" tabindex="-1" role="dialog" aria-labelledby="AuthorModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="AuthorModalLabel">Thêm loại văn bản</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label>Họ và tên</label>
+                <input type="text" id="AuthorName" class="form-control mb-3" required />
+                <div class="form-group">
+                    <label></label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                        </div>
+                        <input id="AuthorDateOfBirth" class="form-control" type="date">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Giới tính</label>
+                    <select id="AuthorGender" class="form-control">
+                        <option value="">-- Chọn giới tính --</option>
+                        <option value="true">Nam</option>
+                        <option value="false">Nữ</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Học hàm</label>
+                    <input id="AuthorAcademicRank" class="form-control" type="text" />
+                </div>
+                <div class="form-group">
+                    <label>Học vị</label>
+                    <input id="AuthorDegree" class="form-control" type="text" />
+                </div>
+                <div class="form-group">
+                    <label>Đơn vị công tác</label>
+                    <input id="AuthorDeparment" class="form-control" type="text" />
+                </div>
+                <div class="form-group">
+                    <label>Chuyên ngành</label>
+                    <input id="AuthorSpecialized" class="form-control" type="text" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-danger" onclick="addAuthor()">Thêm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/lib/select2/js/select2.full.min.js"></script>
     <script src="~/lib/inputmask/min/jquery.inputmask.bundle.min.js"></script>
     <script src="~/lib/bs-custom-file-input/bs-custom-file-input.min.js"></script>
     <script src="~/lib/summernote/summernote-bs4.js"></script>
@@ -205,7 +278,7 @@
             })
 
         });
-
+        $('#file-helper').tooltip();
         $(document).ready(function () {
             bsCustomFileInput.init();
         });

@@ -170,7 +170,7 @@ namespace WebUI.Areas.Admin.Controllers
                 _context.SaveChanges();
                 return Json(category.CategoryId);
             }
-            _logService.Write(LogType.Warning, "Thêm nhanh lĩnh vực thất bại, tên lĩnh vực đang để trống");
+            _logService.Write(LogType.Warning, "Thêm nhanh loại văn bản thất bại, tên lĩnh vực đang để trống");
             return Json(-1);
         }
 

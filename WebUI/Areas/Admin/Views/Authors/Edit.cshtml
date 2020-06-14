@@ -1,7 +1,7 @@
 ﻿@model ApplicationCore.Entities.Author
 
 @{
-    ViewData["Title"] = "Tác giả";
+    ViewData["Title"] = "Nhà khoa học";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
@@ -51,6 +51,26 @@
                         <label asp-for="PhoneNumber" class="control-label"></label>
                         <input asp-for="PhoneNumber" class="form-control" data-inputmask='"mask": "9999999999"' data-mask />
                         <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AcademicRank" class="control-label"></label>
+                        <input asp-for="AcademicRank" class="form-control" type="text" />
+                        <span asp-validation-for="AcademicRank" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Degree" class="control-label"></label>
+                        <input asp-for="Degree" class="form-control" type="text" />
+                        <span asp-validation-for="Degree" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Deparment" class="control-label"></label>
+                        <input asp-for="Deparment" class="form-control" type="text" />
+                        <span asp-validation-for="Deparment" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Specialized" class="control-label"></label>
+                        <input asp-for="Specialized" class="form-control" type="text" />
+                        <span asp-validation-for="Specialized" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="col-md-8">

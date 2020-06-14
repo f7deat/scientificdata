@@ -7,22 +7,22 @@
 <div class="card">
     <div class="card-header">
         <h3 class="card-title">@ViewData["Title"]</h3> <div class="card-tools">
-            Tổng số: <b>@Model.Count</b>
+            Tổng số: <b>@Model.TotalRecord</b>
         </div>
     </div>
     <!-- /.card-header -->
     <div class="card-body">
         
         <table class="table table-bordered mb-3">
-            <thead>
+            <thead class="bg-danger">
                 <tr>
                     <th>
                         Tên tài liệu
                     </th>
-                    <th>
-                        Tác giả
+                    <th class="text-truncate">
+                        Nhà khoa học
                     </th>
-                    <th>
+                    <th class="text-truncate">
                         Loại văn bản
                     </th>
                 </tr>
@@ -36,7 +36,9 @@
                                 <i class="fa fa-file"></i>
                                 <a href="/admin/topics/details/@item.TopicId?returnUrl=/admin/categories/details/@ViewBag.Id">@item.Name</a>
                             </div>
-                            <i class="text-muted text-sm"><i class="fa fa-calendar"></i>  @item.PublishDate?.ToString("dd/MM/yyyy")</i>
+                            <div class="text-muted">
+                                @item.Description
+                            </div>
                         </td>
                         <td>
                             @foreach (var author in item.AuthorTopics)
@@ -47,6 +49,7 @@
                             }
                         </td>
                         <td>
+                            @item.TopicType?.Name
                             @*@{
                                 var description = ApplicationCore.Helper.EnumHelper<ApplicationCore.Entities.TopicType>.GetDisplayValue(item.TopicType.Value);
                                 <a href="/admin/searches/topictypes?topictype=@item.TopicType.Value">@Html.DisplayFor(e => description)</a>
