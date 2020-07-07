@@ -31,7 +31,7 @@
                                 Tên đơn vị
                             </th>
                             <th>
-                                Số tài liệu
+                                Mô tả ngắn
                             </th>
                             <th></th>
                         </tr>
@@ -44,11 +44,10 @@
                                     <a asp-action="Details" asp-route-id="@item.DepartmentId" data-toggle="tooltip" data-placement="top" title="@item.Description"><b>@item.Name</b></a>
                                 </td>
                                 <td>
-                                    <b>@item.Topics.Count</b>
+                                    @item.Description
                                 </td>
-                                <td>
+                                <td class="text-truncate">
                                     <a asp-action="Edit" asp-route-id="@item.DepartmentId" class="btn btn-primary btn-sm"><i class="fa fa-pen"></i> Chỉnh sửa</a>
-
                                     <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal" data-whatever="@item.DepartmentId"><i class="fa fa-trash"></i> Xóa</button>
                                 </td>
                             </tr>
@@ -79,7 +78,7 @@
             </div>
             <div class="card-body">
                 <div class="chart">
-                    <canvas id="pieChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                    <canvas id="pieChart" style="min-height: 450px; height: 450px; max-height: 450px; max-width: 100%;"></canvas>
                 </div>
             </div>
         </div>

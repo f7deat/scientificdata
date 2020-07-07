@@ -29,7 +29,7 @@
                     <th>
                         Loại văn bản
                     </th>
-                    <th>Số tài liệu</th>
+                    <th>Mô tả ngắn</th>
                     <th></th>
                 </tr>
             </thead>
@@ -41,12 +41,9 @@
                             <div class="font-weight-bold">
                                 <a href="/admin/categories/details/@item.CategoryId?returnUrl=/admin/categories&searchTerm=@ViewBag.SearchTerm" data-toggle="tooltip" data-placement="top" title="@item.Description">@item.Name</a>
                             </div>
-                            <div class="text-muted">
-                                @item.Description
-                            </div>
                         </td>
                         <td>
-                            <b>@item.Topics.Count</b>
+                            @item.Description
                         </td>
                         <td>
                             <a asp-action="Edit" asp-route-id="@item.CategoryId" class="btn btn-primary btn-sm"><i class="fa fa-pen"></i> Chỉnh sửa</a>

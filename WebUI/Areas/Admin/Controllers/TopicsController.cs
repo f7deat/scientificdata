@@ -42,12 +42,11 @@ namespace WebUI.Areas.Admin.Controllers
             {
                 ViewBag.TopicName = searchTerm;
                 return View(await PaginatedList<Topic>.CreateAsync(_context.Topics.Include(x => x.AuthorTopics)
-                        .Include(x => x.Category)
                         .Where(x => x.Name.Contains(searchTerm))
                         .OrderByDescending(x => x.CreatedDate), pageIndex ?? 1, 10));
             }
 
-            return View(await PaginatedList<Topic>.CreateAsync(_context.Topics.Include(x => x.AuthorTopics).Include(x => x.Category).OrderByDescending(x => x.ModifiedDate), pageIndex ?? 1, 10));
+            return View(await PaginatedList<Topic>.CreateAsync(_context.Topics.Include(x => x.AuthorTopics).OrderByDescending(x => x.ModifiedDate), pageIndex ?? 1, 10));
         }
 
         [Authorize]

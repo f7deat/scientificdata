@@ -23,7 +23,7 @@
                     {
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <a href="/admin/departments/details/@item.DepartmentId?returnUrl=@Url.RouteUrl(Url.ActionContext.RouteData.Values)">@item.Name</a>
-                            <span class="badge badge-danger badge-pill">@item.Topics.Count</span>
+                            <span class="badge badge-danger badge-pill">@item.Count</span>
                         </li>
                     }
                     <li class="list-group-item">
@@ -36,7 +36,7 @@
                     {
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <a href="/admin/searches/topictypes?topicTypeId=@item.TopicTypeId">@item.Name</a>
-                            <span class="badge badge-danger badge-pill">@item.Topics.Count</span>
+                            <span class="badge badge-danger badge-pill">@item.Count</span>
                         </li>
                     }
                     <li class="list-group-item">

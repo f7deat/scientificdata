@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
+using WebUI.Areas.Admin.Models.Search;
 
 namespace WebUI.Areas.Admin.Controllers
 {
@@ -47,10 +48,18 @@ namespace WebUI.Areas.Admin.Controllers
             ViewBag.FromDate = fromDate;
             ViewBag.ToDate = toDate;
 
-            // Dropdown Data
-            ViewBag.Categories = await _context.Categories.ToListAsync();
-            ViewBag.Departments = await _context.Departments.Include(x => x.Topics).Take(10).ToListAsync();
-            ViewBag.TopicTypes = await _context.TopicTypes.Include(x => x.Topics).Take(10).ToListAsync();
+            ViewBag.Departments = await _context.Departments.Take(10).Select(x=> new DepartmentSearchModel() {
+                DepartmentId = x.DepartmentId,
+                Name = x.Name,
+                Count = _context.Topics.Count(c=>c.DepartmentId == x.DepartmentId)
+            }).ToListAsync();
+
+            ViewBag.TopicTypes = await _context.TopicTypes.Take(10).Select(x => new TopicTypeSearchModel()
+            {
+                TopicTypeId = x.TopicTypeId,
+                Name = x.Name,
+                Count = _context.Topics.Count(c => c.TopicTypeId == x.TopicTypeId)
+            }).ToListAsync();
 
             ViewBag.CategoriesSelect = new SelectList(_context.Categories, "CategoryId", "Name", category);
             ViewBag.DepartmentsSelect = new SelectList(_context.Departments, "DepartmentId", "Name", department);
